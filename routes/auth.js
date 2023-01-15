@@ -4,36 +4,20 @@ const bcrypt = require("bcrypt");
 
 const authRouter = express.Router();
 
-const { loginUser } = require("../helpers/users");
+const { loginUser, registerUser } = require("../helpers/users");
 
 module.exports = (app, passport) => {
   app.use("/auth", authRouter);
 
   authRouter.post("/register", async (req, res) => {
     try {
-      const { username, password, email } = req.body;
+      const { username, email, password } = req.body;
 
-      //generate salt
-      const salt = await bcrypt.genSalt(10);
-      //hash password
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const newUser = await registerUser({username, email, password})
 
-      // add user to db
-      const newUser = await pool.query(
-        "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
-        [username, hashedPassword, email]
-      );
-
-      res.status(201).send(newUser.rows);
+      res.status(201).send(newUser);
     } catch (err) {
-      if (
-        err.message ==
-        'duplicate key value violates unique constraint "users_email_key"'
-      ) {
-        res.send("User already exists");
-      } else {
-        res.send(err.message);
-      }
+      throw err
     }
   });
 
