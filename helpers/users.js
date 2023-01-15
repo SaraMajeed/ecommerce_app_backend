@@ -133,11 +133,25 @@ const loginUser = async (data) => {
       throw createError(401, 'Incorrect username or password');
     }
 
-    console.log(user)
+    // console.log(user)
     return user;
   } catch (err) {
     throw createError(500, err)
   }
+}
+
+const isLoggedIn = (req, res, next) => {
+  try {
+    if(req.user) { //if user is logged in
+      next()
+    } else {
+      res.send('not logged in')
+      // res.redirect('/auth/login')
+    }
+  } catch (err) {
+    throw err;
+  }
+  
 }
 
 
@@ -149,4 +163,5 @@ module.exports = {
   deleteUser,
   registerUser,
   loginUser,
+  isLoggedIn,
 };
