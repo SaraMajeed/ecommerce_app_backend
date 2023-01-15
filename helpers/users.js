@@ -72,6 +72,49 @@ const deleteUser = (req, res) => {
     })
 }
 
+const createUser = async (data) => {
+
+  try {
+    const { username, email, password } = data
+
+    const hashedPassword = await encryptPassword(password)
+
+    const insert = {
+      query: "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
+      values: [username, hashedPassword, email]
+    };
+
+    const newUser = await pool.query(insert.query, insert.values);
+
+    return newUser.rows
+
+  } catch (err) {
+    throw err
+  }
+}
+
+const registerUser = async (data) => {
+
+  try {
+    let response; 
+    const { username, email, password } = data;
+    const userExists = await getUserByEmail(email);
+
+    if(userExists){
+      response =  "User already exists"
+    } else {
+      response = await createUser({ username, email, password });
+    }
+
+    return response
+
+  } catch (err) {
+    throw err
+  }
+}
+
+
+
 const loginUser = async (data) => {
 
   const { email, password } = data;
@@ -104,5 +147,6 @@ module.exports = {
   updateUserById,
   getUserByEmail,
   deleteUser,
+  registerUser,
   loginUser,
 };
