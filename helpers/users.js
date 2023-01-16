@@ -145,8 +145,8 @@ const isLoggedIn = (req, res, next) => {
     if(req.user) { //if user is logged in
       next()
     } else {
-      res.send('not logged in')
-      // res.redirect('/auth/login')
+      console.log('not logged in')
+      res.redirect('/auth/login')
     }
   } catch (err) {
     throw err;
