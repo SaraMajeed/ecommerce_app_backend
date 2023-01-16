@@ -17,8 +17,6 @@ module.exports = (app) => {
   productRouter.get("/", async (req, res) => {
     const { category, name } = req.query;
 
-    console.log(category, name);
-
     try {
       let response;
       if (category) {
