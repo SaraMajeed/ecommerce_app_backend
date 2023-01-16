@@ -4,6 +4,18 @@ const session = require("express-session");
 module.exports = (app) => {
   app.use(bodyParser.json());
 
+  // Logging
+
+  const morgan = require("morgan");
+
+  // development logging (:method :url :status :response-time)
+  // disable logging when testing
+  app.use(
+    morgan("dev", {
+      skip: (req, res) => process.env.NODE_ENV === "test",
+    })
+  );
+
   // Create a session
   app.use(
     session({
