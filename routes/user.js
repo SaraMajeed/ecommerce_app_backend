@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { getAllUsers, getUserById, updateUserById, deleteUser } = require('../helpers/users')
 const userRouter = Router()
+const ordersRouter = require('./orders')
 
 module.exports = (app) => {
 
@@ -13,6 +14,8 @@ module.exports = (app) => {
     userRouter.put('/:id', updateUserById)
 
     userRouter.delete('/:id', deleteUser)
+
+    userRouter.use('/:id/orders', ordersRouter)
 
 }
 

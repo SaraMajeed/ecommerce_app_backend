@@ -1,16 +1,10 @@
 const { getOrders, getOrdersById } = require('../helpers/orders')
 const ordersRouter = require('express').Router({ mergeParams: true });
 
-// TODO: route needs fixing
+ordersRouter.get('/', getOrders)
 
-module.exports = (app) => {
+ordersRouter.get('/:orderId', getOrdersById)
 
-    app.use('/orders', ordersRouter)
-    
-    ordersRouter.get('/', getOrders)
-
-    ordersRouter.get('/:orderId', getOrdersById)
-
-}
+module.exports = ordersRouter;
 
 
