@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_OPTIONS='--trace-warnings' nodemon -r dotenv/config server.js ",
-    "test": "jest --setupFiles dotenv/config --forceExit"
+    "test": "cross-env NODE_ENV=test jest --setupFiles dotenv/config --forceExit"
   },
   "author": "",
   "license": "ISC",
