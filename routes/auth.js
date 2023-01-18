@@ -12,8 +12,9 @@ module.exports = (app, passport) => {
 
       const newUser = await registerUser({username, email, password})
 
-      res.status(201).send(newUser);
+      res.status(201).send(newUser[0]);
     } catch (err) {
+      res.status(404)
       throw err
     }
   });

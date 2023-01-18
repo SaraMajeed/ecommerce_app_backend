@@ -18,16 +18,24 @@ const getAllUsers = (req, res) => {
   });
 };
 
-const getUserById = (req, res) => {
-  const user = pool.query(
-    "SELECT * FROM users WHERE id = $1",
-    [req.params.id],
-    (err, results) => {
-      if (err) throw err;
+const getUserById = async (id) => {
 
-      res.status(200).send(results.rows);
-    }
-  );
+  try {
+    const user = await pool.query(
+      "SELECT * FROM users WHERE id = $1",
+      [id]);
+
+    if(user.rows?.length){
+      return user.rows[0] 
+    } 
+
+    return null;
+
+  } catch (err) {
+    throw err;
+  }
+
+  
 };
 
 const updateUserById = async (req, res) => {
@@ -64,12 +72,25 @@ const getUserByEmail = async (email) => {
 
 }
 
-const deleteUser = (req, res) => {
-    const userToDelete = pool.query("DELETE FROM users WHERE id = $1", [req.params.id], (err, results) => {
-        if(err) throw err;
+const deleteUserById = async (id) => {
 
-        res.status(200).send("Successfully deleted user")
-    })
+  try {
+
+    const user = await getUserById(id)
+    
+    if(user){
+      const userToDelete = await pool.query(
+        "DELETE FROM users WHERE id = $1",
+        [id]
+      );
+    } else {
+      return null;
+    }
+
+    return user;
+  } catch (err) {
+    throw err
+  }
 }
 
 const createUser = async (data) => {
@@ -160,7 +181,7 @@ module.exports = {
   getUserById,
   updateUserById,
   getUserByEmail,
-  deleteUser,
+  deleteUserById,
   registerUser,
   loginUser,
   isLoggedIn,
