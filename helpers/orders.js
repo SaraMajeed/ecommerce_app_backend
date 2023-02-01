@@ -1,33 +1,38 @@
 const pool = require("../db/db");
 
 const getOrders = (req, res) => {
-    const query = "SELECT date, total_price FROM orders WHERE users_id = $1 ORDER BY date;"
+    const query = "SELECT orders.id, orders.user_id, users.email, orders.total_price FROM orders JOIN users ON users.id = orders.user_id AND orders.user_id = $1"
 
-    const orders = pool.query(query, [req.params.id], (err, results) => {
+    const orders = pool.query(query, [req.user], (err, results) => {
         if(err) throw err;
 
         res.status(200).send(results.rows)
-    })
-
+    }) 
 }
 
 const getOrdersById = (req, res) => {
 
-    // console.log(req.params.orderId, req.params.id)
+    const query = "SELECT * FROM orders WHERE id = $1"
 
-    //TODO: fix query
-
-    const query = "SELECT product.name, product.description, product.price FROM orders, product, products_orders WHERE products_orders.orders_id  = orders.id AND product.id = products_orders.product_id AND orders.users_id = $1 AND product.id = $2;"
-
-    const order = pool.query(query, [req.params.id, req.params.orderId], (err, results) => {
+    const order = pool.query(query, [req.params.orderId], (err, results) => {
         if(err) throw err;
 
         res.status(200).send(results.rows)
     })
-
 } 
+
+const getProductsOrdersByOrderId = (req, res) => {
+    const query = "SELECT product.id, product.name, product.description, product.category, products_orders.quantity, product.price AS price_per_unit FROM product JOIN products_orders ON products_orders.product_id = product.id WHERE orders_id = $1 ORDER BY product.id"
+
+    const orderDetails = pool.query(query, [req.params.orderId], (err, results) => {
+        if (err) throw err;
+
+        res.status(200).send(results.rows)
+    })
+}
 
 module.exports = {
     getOrders,
     getOrdersById,
+    getProductsOrdersByOrderId,
 }
