@@ -1,6 +1,5 @@
 const { Router } = require('express');
-const { deserializeUser } = require('passport');
-const { getAllUsers, getUserById, updateUserById, deleteUserById } = require('../helpers/users')
+const { getAllUsers, getUserById, updateUserById, deleteUserById, getUserByEmail } = require('../helpers/users')
 const userRouter = Router()
 const ordersRouter = require('./orders')
 
@@ -12,8 +11,7 @@ module.exports = (app) => {
 
     userRouter.get('/:id', async (req, res) => {
         try {
-            const user = await getUserById(req.params.id)
-
+            const user = await getUserById(req.user)
             res.send(user)
 
         } catch (err) {
@@ -25,12 +23,26 @@ module.exports = (app) => {
 
     userRouter.delete('/:id', async (req, res) => {
         try {
-            const userToDelete = await deleteUserById(req.params.id)
+            const userToDelete = await deleteUserById(req.user)
             res.send(userToDelete)
         } catch (err) {
             throw err;
         }
     })
+
+    userRouter.param ('id', async (req, res, next, id) => {
+        try {
+            let user = await getUserById(id);
+            if(user) {
+                req.user = user.id
+                next()
+            } else {
+                next (new Error('User does not exist!'))
+            }
+        } catch (err) {
+            next(err)
+        }
+    }) 
 
     userRouter.use('/:id/orders', ordersRouter)
 
