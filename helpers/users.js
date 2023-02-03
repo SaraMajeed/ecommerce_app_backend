@@ -1,6 +1,7 @@
 const pool = require("../db/db");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
+const { createCart } = require('../helpers/carts')
 
 const encryptPassword = async (password) => {
   //generate salt
@@ -103,9 +104,13 @@ const createUser = async (data) => {
     const insert = {
       query: "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
       values: [username, hashedPassword, email]
-    };
+    }; 
 
+    // Insert user data into users table
     const newUser = await pool.query(insert.query, insert.values);
+
+    // Create a cart for the new user
+    const newCart = await createCart(newUser.rows[0].id)
 
     return newUser.rows
 
