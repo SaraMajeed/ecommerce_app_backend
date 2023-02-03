@@ -2,6 +2,7 @@ const { Router } = require('express');
 const { getAllUsers, getUserById, updateUserById, deleteUserById, getUserByEmail } = require('../helpers/users')
 const userRouter = Router()
 const ordersRouter = require('./orders')
+const cartsRouter = require('./carts')
 
 module.exports = (app) => {
 
@@ -44,7 +45,9 @@ module.exports = (app) => {
         }
     }) 
 
-    userRouter.use('/:id/orders', ordersRouter)
+    userRouter.use('/:id/orders', ordersRouter);
+    
+    userRouter.use("/:id/carts", cartsRouter);
 
 }
 
