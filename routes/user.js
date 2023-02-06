@@ -1,55 +1,43 @@
-const { Router } = require('express');
-const { getAllUsers, getUserById, updateUserById, deleteUserById, getUserByEmail } = require('../helpers/users')
-const userRouter = Router()
-const ordersRouter = require('./orders')
-const cartsRouter = require('./carts')
+const { Router } = require("express");
+const {
+  getAllUsersController,
+  getUserByIdController,
+  updateUserByIdController,
+  deleteUserByIdController,
+} = require("../controllers/users");
+
+const { getUserById } = require('../helpers/users');
+
+const userRouter = Router();
+const ordersRouter = require("./orders");
+const cartsRouter = require("./carts");
 
 module.exports = (app) => {
+  app.use("/users", userRouter);
 
-    app.use('/users', userRouter)
+  userRouter.get("/", getAllUsersController);
 
-    userRouter.get('/', getAllUsers)
+  userRouter.get("/:id", getUserByIdController);
 
-    userRouter.get('/:id', async (req, res) => {
-        try {
-            const user = await getUserById(req.user)
-            res.send(user)
+  userRouter.put("/:id", updateUserByIdController);
 
-        } catch (err) {
-            throw err;
-        }
-    })
+  userRouter.delete("/:id", deleteUserByIdController);
 
-    userRouter.put('/:id', updateUserById)
+  userRouter.param("id", async (req, res, next, id) => {
+    try {
+      let user = await getUserById(id);
+      if (user) {
+        req.user = user.id;
+        next();
+      } else {
+        next(new Error("User does not exist!"));
+      }
+    } catch (err) {
+      next(err);
+    }
+  });
 
-    userRouter.delete('/:id', async (req, res) => {
-        try {
-            const userToDelete = await deleteUserById(req.user)
-            res.send(userToDelete)
-        } catch (err) {
-            throw err;
-        }
-    })
+  userRouter.use("/:id/orders", ordersRouter);
 
-    userRouter.param ('id', async (req, res, next, id) => {
-        try {
-            let user = await getUserById(id);
-            if(user) {
-                req.user = user.id
-                next()
-            } else {
-                next (new Error('User does not exist!'))
-            }
-        } catch (err) {
-            next(err)
-        }
-    }) 
-
-    userRouter.use('/:id/orders', ordersRouter);
-    
-    userRouter.use("/:id/carts", cartsRouter);
-
-}
-
-
-
+  userRouter.use("/:id/carts", cartsRouter);
+};

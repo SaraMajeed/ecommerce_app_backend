@@ -1,7 +1,7 @@
 const pool = require("../db/db");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
-const { createCart } = require('../helpers/carts')
+const { createCart, deleteCart } = require('../helpers/carts')
 
 const encryptPassword = async (password) => {
   //generate salt
@@ -12,11 +12,20 @@ const encryptPassword = async (password) => {
   return hashedPassword;
 };
 
-const getAllUsers = (req, res) => {
-  const users = pool.query("SELECT * FROM users", (err, results) => {
-    if (err) throw err; 
-    res.status(200).send(results.rows);
-  });
+const getAllUsers = async () => {
+
+  try {
+    const users = await pool.query("SELECT * FROM users")
+
+    if (users.rows?.length){
+      return users.rows;
+    }
+
+    return null;
+
+  } catch (err) {
+    throw err;
+  }
 };
 
 const getUserById = async (id) => {
@@ -39,23 +48,25 @@ const getUserById = async (id) => {
   
 };
 
-const updateUserById = async (req, res) => {
-  const { username, password, email } = req.body;
+const updateUserById = async (data) => {
 
-  const updateQuery = `UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4 RETURNING username, email `;
+  try {
+    const { username, password, email, userId } = data;
 
-  const hashedPassword = await encryptPassword(password);
-  // console.log(hashedPassword);
+    const hashedPassword = await encryptPassword(password);
 
-  pool.query(
-    updateQuery,
-    [username, hashedPassword, email, req.params.id],
-    (err, results) => {
-      if (err) throw err;
-
-      res.send(results.rows);
+    const updateQuery = {
+      query: "UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4 RETURNING username, email",
+      values: [username, hashedPassword, email, userId]
     }
-  );
+
+    const updatedUser = await pool.query(updateQuery.query, updateQuery.values);
+      
+    return updatedUser.rows;
+  } catch (err) {
+    throw err;
+  }
+
 };
 
 const getUserByEmail = async (email) => {
@@ -80,15 +91,22 @@ const deleteUserById = async (id) => {
     const user = await getUserById(id)
     
     if(user){
+
+      // delete the user's cart before deleting the user to avoid foreign key contraint violation
+      const deleteUserCart = await deleteCart(id);
+
       const userToDelete = await pool.query(
         "DELETE FROM users WHERE id = $1",
         [id]
       );
-    } else {
-      return null;
-    }
 
-    return user;
+      return `Successfully deleted user: 
+        username: ${user.username}, 
+        email: ${user.email}
+      `
+    } 
+    return null; 
+
   } catch (err) {
     throw err
   }
@@ -190,4 +208,4 @@ module.exports = {
   registerUser,
   loginUser,
   isLoggedIn,
-};
+}; 
