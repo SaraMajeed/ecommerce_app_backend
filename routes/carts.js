@@ -5,7 +5,6 @@ const {
   getProductsInCartController,
   updateProductsInCartController,
   deleteProductInCartController,
-  getSingleProductInCartController
 } = require("../controllers/carts");
 
 const cartsRouter = require("express").Router({ mergeParams: true });
@@ -21,9 +20,6 @@ cartsRouter.put("/:cartId", updateProductsInCartController);
 cartsRouter.delete("/:cartId", deleteProductInCartController);
 
 cartsRouter.get("/:cartId/products", getProductsInCartController);
-
-cartsRouter.get('/:cartId/products/:productId', getSingleProductInCartController)
-
 
 
 module.exports = cartsRouter;
