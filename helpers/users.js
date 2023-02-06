@@ -177,7 +177,6 @@ const loginUser = async (data) => {
       throw createError(401, 'Incorrect username or password');
     }
 
-    // console.log(user)
     return user;
   } catch (err) {
     throw createError(500, err)
@@ -189,8 +188,8 @@ const isLoggedIn = (req, res, next) => {
     if(req.user) { //if user is logged in
       next()
     } else {
-      console.log('not logged in')
-      res.redirect('/auth/login')
+      res.status(401).send("You are not logged in. Please log in or register to continue.");
+      // res.redirect('/auth/login')
     }
   } catch (err) {
     throw err;
