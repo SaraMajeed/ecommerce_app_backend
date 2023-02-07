@@ -2,7 +2,7 @@ const pool = require("../db/db");
 
 const getProducts = async () => {
   try {
-    const products = await pool.query("SELECT * FROM product");
+    const products = await pool.query("SELECT * FROM product ORDER BY id");
 
     if (products.rows?.length) {
       return products.rows;
@@ -51,10 +51,10 @@ const getProductById = async (id) => {
   try {
     const query = "SELECT * FROM product WHERE id = $1";
 
-    const product = pool.query(query, [id]);
+    const product = await pool.query(query, [id]);
 
     if (product.rows?.length) {
-      return product.rows;
+      return product.rows[0];
     }
 
     return null;
@@ -73,20 +73,23 @@ const updateProductById = async (data) => {
       values: [name, description, price, category, productId],
     };
 
-    const updatedProduct = await pool.query(
-      updateQuery.query,
-      updateQuery.values
-    );
+    // check if product exists before updating
+    const productExists = await getProductById(productId);
 
-    return updatedProduct.rows;
+    if (productExists) {
+      const updatedProduct = await pool.query(
+        updateQuery.query,
+        updateQuery.values
+      );
+      return updatedProduct.rows;
+    }
+
+    return "Cannot update! Product does not exist!";
   } catch (err) {
     throw err;
   }
 };
 
-const deleteProductBtId = async (id) => {
-    
-}
 
 module.exports = {
   getProducts,
