@@ -1,40 +1,67 @@
 const pool = require("../db/db");
 
-
 const getProducts = async () => {
-    const products = await pool.query("SELECT * FROM product")
-    return products.rows
-}
+  try {
+    const products = await pool.query("SELECT * FROM product");
 
-const getProductsByCategory = async category => {
-    const query = "SELECT * FROM product WHERE category = $1"
+    if (products.rows?.length) {
+      return products.rows;
+    }
 
-    const products = await pool.query(query, [category.toLowerCase()])
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};
 
-    return products.rows
+const getProductsByCategory = async (category) => {
+  try {
+    const query = "SELECT * FROM product WHERE category = $1";
 
-}
+    const products = await pool.query(query, [category.toLowerCase()]);
 
-const getProductByName = async name => {
-    const query = "SELECT * FROM product WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC"
+    if (products.rows?.length) {
+      return products.rows;
+    }
 
-    const products = await pool.query(query, [name.toLowerCase()])
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};
 
-    return products.rows
+const getProductByName = async (name) => {
+  try {
+    const query =
+      "SELECT * FROM product WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC";
 
-}
+    const products = await pool.query(query, [name.toLowerCase()]);
 
+    if (products.rows?.length) {
+      return products.rows;
+    }
 
-const getProductById = (req, res) => {
-    const query = "SELECT * FROM product WHERE id = $1"
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};
 
-    const product = pool.query(query, [req.params.productId], (err, results) => {
-        if (err) throw err;
+const getProductById = async (id) => {
+  try {
+    const query = "SELECT * FROM product WHERE id = $1";
 
-        res.status(200).send(results.rows)
-    })
-}
+    const product = pool.query(query, [id]);
 
+    if (product.rows?.length) {
+      return product.rows;
+    }
+
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};
 
 module.exports = {
   getProducts,
