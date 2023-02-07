@@ -90,6 +90,26 @@ const updateProductById = async (data) => {
   }
 };
 
+const deleteProductById = async (id) => {
+  try {
+
+    const productExists = await getProductById(id);
+
+    if(productExists) {
+        const query = "DELETE FROM product WHERE id = $1 RETURNING *";
+
+        const deletedProduct = await pool.query(query, [id]);
+
+        return deletedProduct.rows;
+    }
+
+    return "Cannot delete! Product does not exist!";
+
+
+  } catch (err) {
+    throw err;
+  }
+};
 
 module.exports = {
   getProducts,
@@ -97,4 +117,5 @@ module.exports = {
   getProductByName,
   getProductsByCategory,
   updateProductById,
+  deleteProductById
 };

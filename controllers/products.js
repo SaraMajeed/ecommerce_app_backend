@@ -3,7 +3,8 @@ const {
   getProductsByCategory,
   getProductByName,
   getProductById,
-  updateProductById
+  updateProductById,
+  deleteProductById
 } = require("../helpers/products");
 
 const getProductsController = async (req, res) => {
@@ -51,8 +52,22 @@ const updateProductByIdController = async (req, res) => {
     }
 }
 
+//TODO: fix constraint violation error 
+const deleteProductByIdController = async (req, res) => {
+    try {
+      const { productId } = req.params;
+      const response = await deleteProductById(productId);
+
+      res.status(200).send(response);
+    } catch (err) {
+      res.status(404);
+      throw err;
+    }
+}
+
 module.exports = {
   getProductsController,
   getProductByIdController,
   updateProductByIdController,
+  deleteProductByIdController
 };

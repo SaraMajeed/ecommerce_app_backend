@@ -4,7 +4,8 @@ const productRouter = Router();
 const {
   getProductsController,
   getProductByIdController,
-  updateProductByIdController
+  updateProductByIdController,
+  deleteProductByIdController
 } = require("../controllers/products");
 
 module.exports = (app) => {
@@ -15,4 +16,6 @@ module.exports = (app) => {
   productRouter.get("/:productId", getProductByIdController);
 
   productRouter.put("/:productId", updateProductByIdController)
+
+  productRouter.delete("/:productId", deleteProductByIdController);
 };
