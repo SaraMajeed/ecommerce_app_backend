@@ -63,6 +63,25 @@ const getProductById = async (id) => {
   }
 };
 
+const createNewProduct = async (data) => {
+    try {
+        const { name, description, price, category } = data;
+
+        const insertQuery = {
+          query:
+            "INSERT INTO product (name, description, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
+          values: [name, description, price, category],
+        };
+
+        const newProduct = await pool.query(insertQuery.query, insertQuery.values);
+
+        return newProduct.rows;
+
+    } catch (err) {
+        throw err;
+    } 
+}
+
 const updateProductById = async (data) => {
   try {
     const { name, description, price, category, productId } = data;
@@ -81,7 +100,7 @@ const updateProductById = async (data) => {
         updateQuery.query,
         updateQuery.values
       );
-      return updatedProduct.rows;
+      return updatedProduct.rows[0];
     }
 
     return "Cannot update! Product does not exist!";
@@ -117,5 +136,6 @@ module.exports = {
   getProductByName,
   getProductsByCategory,
   updateProductById,
-  deleteProductById
+  deleteProductById,
+  createNewProduct
 };

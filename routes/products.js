@@ -5,13 +5,16 @@ const {
   getProductsController,
   getProductByIdController,
   updateProductByIdController,
-  deleteProductByIdController
+  deleteProductByIdController,
+  createNewProductController
 } = require("../controllers/products");
 
 module.exports = (app) => {
   app.use("/products", productRouter);
 
   productRouter.get("/", getProductsController);
+
+  productRouter.post("/", createNewProductController);
 
   productRouter.get("/:productId", getProductByIdController);
 
