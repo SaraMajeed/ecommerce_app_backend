@@ -4,6 +4,7 @@ const productRouter = Router();
 const {
   getProductsController,
   getProductByIdController,
+  updateProductByIdController
 } = require("../controllers/products");
 
 module.exports = (app) => {
@@ -12,4 +13,6 @@ module.exports = (app) => {
   productRouter.get("/", getProductsController);
 
   productRouter.get("/:productId", getProductByIdController);
+
+  productRouter.put("/:productId", updateProductByIdController)
 };

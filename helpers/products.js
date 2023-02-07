@@ -63,9 +63,35 @@ const getProductById = async (id) => {
   }
 };
 
+const updateProductById = async (data) => {
+  try {
+    const { name, description, price, category, productId } = data;
+
+    const updateQuery = {
+      query:
+        "UPDATE product SET name = $1, description = $2, price = $3, category = $4 WHERE id = $5 RETURNING *",
+      values: [name, description, price, category, productId],
+    };
+
+    const updatedProduct = await pool.query(
+      updateQuery.query,
+      updateQuery.values
+    );
+
+    return updatedProduct.rows;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const deleteProductBtId = async (id) => {
+    
+}
+
 module.exports = {
   getProducts,
   getProductById,
   getProductByName,
   getProductsByCategory,
+  updateProductById,
 };

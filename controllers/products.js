@@ -3,6 +3,7 @@ const {
   getProductsByCategory,
   getProductByName,
   getProductById,
+  updateProductById
 } = require("../helpers/products");
 
 const getProductsController = async (req, res) => {
@@ -37,7 +38,21 @@ const getProductByIdController = async (req, res) => {
   }
 };
 
+const updateProductByIdController = async (req, res) => {
+    try {
+      const { productId } = req.params;
+      const { name, description, price, category } = req.body;
+      const response = await updateProductById({name, description, price, category, productId});
+
+      res.status(200).send(response);
+    } catch (err) {
+      res.status(404);
+      throw err;
+    }
+}
+
 module.exports = {
   getProductsController,
   getProductByIdController,
+  updateProductByIdController,
 };
