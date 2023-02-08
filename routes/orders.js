@@ -1,12 +1,15 @@
-const { getOrders, getOrdersById, getProductsOrdersByOrderId } = require('../helpers/orders')
-const ordersRouter = require('express').Router({ mergeParams: true });
+const ordersRouter = require("express").Router({ mergeParams: true });
 
-ordersRouter.get('/', getOrders)
+const {
+  getOrdersController,
+  getOrdersByIdController,
+  getOrderItemsByIdController,
+} = require("../controllers/orders");
 
-ordersRouter.get('/:orderId', getOrdersById)
+ordersRouter.get("/", getOrdersController);
 
-ordersRouter.get('/:orderId/details',getProductsOrdersByOrderId )
+ordersRouter.get("/:orderId", getOrdersByIdController);
+
+ordersRouter.get("/:orderId/details", getOrderItemsByIdController);
 
 module.exports = ordersRouter;
-
-
