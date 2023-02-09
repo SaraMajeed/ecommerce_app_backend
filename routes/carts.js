@@ -1,7 +1,7 @@
 const {
   addProductToCartController,
   getCartsController,
-  getCartByIdController,
+  getCartByUserIdController,
   getProductsInCartController,
   updateProductsInCartController,
   deleteProductInCartController,
@@ -9,17 +9,25 @@ const {
 
 const cartsRouter = require("express").Router({ mergeParams: true });
 
-cartsRouter.get("/", getCartsController);
+module.exports = (app) => {
+  app.use("/carts", cartsRouter);
 
-cartsRouter.get("/:cartId", getCartByIdController);
+  // /carts
+  cartsRouter.get("/", getCartsController);
 
-cartsRouter.post("/:cartId", addProductToCartController);
+  // /carts/:userId
+  cartsRouter.get("/:userId", getCartByUserIdController);
 
-cartsRouter.put("/:cartId", updateProductsInCartController);
+  cartsRouter.post("/:cartId", addProductToCartController);
 
-cartsRouter.delete("/:cartId", deleteProductInCartController);
+  cartsRouter.put("/:cartId", updateProductsInCartController);
 
-cartsRouter.get("/:cartId/products", getProductsInCartController);
+  cartsRouter.delete("/:cartId", deleteProductInCartController);  
+
+  cartsRouter.get("/:userId/products", getProductsInCartController);
+}
 
 
-module.exports = cartsRouter;
+
+
+// module.exports = cartsRouter;

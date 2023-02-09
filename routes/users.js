@@ -10,7 +10,6 @@ const { getUserById } = require('../helpers/users');
 
 const userRouter = Router();
 const ordersRouter = require("./orders");
-const cartsRouter = require("./carts");
 
 module.exports = (app) => {
   app.use("/users", userRouter);
@@ -39,5 +38,4 @@ module.exports = (app) => {
 
   userRouter.use("/:id/orders", ordersRouter);
 
-  userRouter.use("/:id/carts", cartsRouter);
 };
