@@ -7,7 +7,7 @@ const {
   deleteProductInCartController,
 } = require("../controllers/carts");
 
-const cartsRouter = require("express").Router({ mergeParams: true });
+const cartsRouter = require("express").Router();
 
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
