@@ -36,6 +36,4 @@ module.exports = (app) => {
     }
   });
 
-  userRouter.use("/:id/orders", ordersRouter);
-
 };
