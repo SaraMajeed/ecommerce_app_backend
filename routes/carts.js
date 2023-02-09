@@ -5,6 +5,7 @@ const {
   getProductsInCartController,
   updateProductsInCartController,
   deleteProductInCartController,
+  emptyCartController
 } = require("../controllers/carts");
 
 const cartsRouter = require("express").Router();
@@ -20,7 +21,9 @@ module.exports = (app) => {
 
   cartsRouter.put("/:cartId", updateProductsInCartController);
 
-  cartsRouter.delete("/:cartId", deleteProductInCartController);  
+  cartsRouter.delete("/:cartId", emptyCartController);  
+
+  cartsRouter.delete("/:cartId/:productId", deleteProductInCartController);
 
   cartsRouter.get("/:userId/products", getProductsInCartController);
 }

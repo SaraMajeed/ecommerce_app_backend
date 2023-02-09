@@ -27,7 +27,7 @@ const createCart = async (id) => {
   }
 };
 
-const deleteProductsByCartId = async (cartId) => {
+const emptyCart = async (cartId) => {
   try {
     const deleteQuery =
       "DELETE FROM carts_products WHERE cart_id = $1 RETURNING *";
@@ -45,7 +45,7 @@ const deleteCart = async (userId) => {
     const cartId = await getCartByUserId(userId);
 
     //delete products associated with a user's cart before deleting their cart to avoid a foreign key contraint violation
-    const deleteProducts = await deleteProductsByCartId(cartId[0].id);
+    const deleteProducts = await emptyCart(cartId[0].id);
 
     const query = "DELETE FROM cart WHERE user_id = $1 RETURNING *";
     const deletedCart = await pool.query(query, [userId]);
@@ -238,4 +238,5 @@ module.exports = {
   updateProductsInCart,
   getSingleProductInCart,
   deleteProductInCart,
+  emptyCart,
 };

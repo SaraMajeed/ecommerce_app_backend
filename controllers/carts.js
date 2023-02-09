@@ -5,6 +5,7 @@ const {
   addProductToCart,
   updateProductsInCart,
   deleteProductInCart,
+  emptyCart,
   // getSingleProductInCart,
 } = require("../helpers/carts");
 
@@ -92,8 +93,7 @@ const updateProductsInCartController = async (req, res) => {
 
 const deleteProductInCartController = async (req, res) => {
   try {
-    const cartId = req.params.cartId;
-    const { productId } = req.body;
+    const { cartId, productId } = req.params;
 
     const deletedProductInCart = await deleteProductInCart({
       cartId,
@@ -107,6 +107,17 @@ const deleteProductInCartController = async (req, res) => {
   }
 };
 
+const emptyCartController = async (req, res) => {
+  try {
+    const deletedProducts = await emptyCart(req.params.cartId);
+
+    res.status(200).send(deletedProducts);
+  } catch (err) {
+    res.status(404);
+    throw err;
+  }
+}
+
 module.exports = {
   getCartsController,
   addProductToCartController,
@@ -114,5 +125,6 @@ module.exports = {
   getProductsInCartController,
   updateProductsInCartController,
   deleteProductInCartController,
+  emptyCartController
   // getSingleProductInCartController,
 };
