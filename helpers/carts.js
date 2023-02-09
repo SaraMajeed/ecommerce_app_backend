@@ -1,5 +1,7 @@
 const pool = require("../db/db");
 
+const { getProductById } = require("./products")
+
 const getCarts = async () => {
   try {
     const carts = await pool.query("SELECT * FROM cart");
@@ -73,26 +75,26 @@ const getCartByUserId = async (userId) => {
   }
 };
 
-const getCartById = async (data) => {
-  try {
-    const { cartId, userId } = data;
+// const getCartById = async (data) => {
+//   try {
+//     const { cartId, userId } = data;
 
-    const selectQuery = {
-      query: "SELECT * FROM cart WHERE user_id = $1 AND id = $2",
-      values: [userId, cartId],
-    };
+//     const selectQuery = {
+//       query: "SELECT * FROM cart WHERE user_id = $1 AND id = $2",
+//       values: [userId, cartId],
+//     };
 
-    const userCart = await pool.query(selectQuery.query, selectQuery.values);
+//     const userCart = await pool.query(selectQuery.query, selectQuery.values);
 
-    if (userCart.rows?.length) {
-      return userCart.rows;
-    }
+//     if (userCart.rows?.length) {
+//       return userCart.rows;
+//     }
 
-    return null;
-  } catch (err) {
-    throw err;
-  }
-};
+//     return null;
+//   } catch (err) {
+//     throw err;
+//   }
+// };
 
 const getProductsInCart = async (userId) => {
   try {
@@ -146,9 +148,16 @@ const addProductToCart = async (data) => {
       values: [cartId, productId, quantity],
     };
 
-    const insertProduct = await pool.query(insert.query, insert.values);
+    //checks if product exists before adding it
+    const productExists = await getProductById(productId);
 
-    return insertProduct.rows;
+    if (productExists) {
+      const insertProduct = await pool.query(insert.query, insert.values);
+       return insertProduct.rows[0];
+    }
+
+    return "Cannot add! This product does not exist!";
+   
   } catch (err) {
     throw err;
   }
@@ -217,7 +226,7 @@ module.exports = {
   getCarts,
   createCart,
   deleteCart,
-  getCartById,
+  getCartByUserId,
   getProductsInCart,
   addProductToCart,
   updateProductsInCart,
