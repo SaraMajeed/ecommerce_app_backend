@@ -12,10 +12,8 @@ const cartsRouter = require("express").Router({ mergeParams: true });
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
 
-  // /carts
   cartsRouter.get("/", getCartsController);
 
-  // /carts/:userId
   cartsRouter.get("/:userId", getCartByUserIdController);
 
   cartsRouter.post("/:cartId", addProductToCartController);
@@ -26,8 +24,3 @@ module.exports = (app) => {
 
   cartsRouter.get("/:userId/products", getProductsInCartController);
 }
-
-
-
-
-// module.exports = cartsRouter;
