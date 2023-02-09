@@ -132,7 +132,7 @@ const getSingleProductInCart = async (data) => {
       return productInCart.rows;
     }
 
-    return "This product is not in your cart!";
+    return null;
   } catch (err) {
     throw err;
   }
@@ -179,13 +179,17 @@ const updateProductsInCart = async (data) => {
       productId,
     });
 
-    if (!productExistsInCart) {
-      return "Cannot update! This product does not exist in your cart!";
+    if (productExistsInCart) {
+      const updatedCart = await pool.query(
+        updateQuery.query,
+        updateQuery.values
+      );
+
+      return updatedCart.rows;
     }
 
-    const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
+    return "Cannot update! This product does not exist in your cart!";
 
-    return updatedCart.rows;
   } catch (err) {
     throw err;
   }
@@ -216,7 +220,9 @@ const deleteProductInCart = async (data) => {
       deleteQuery.values
     );
 
-    return deletedProduct.rows;
+    return `Sucessfully deleted: 
+      product: ${deletedProduct.rows[0].product_id}
+      quantity: ${deletedProduct.rows[0].quantity}`;
   } catch (err) {
     throw err;
   }
