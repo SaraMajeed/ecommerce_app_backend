@@ -1,14 +1,25 @@
 const {
-  getOrders,
+  getAllOrders,
+  getUserOrders,
   getOrdersById,
   getOrderItemsById,
+  deleteOrder,
 } = require("../helpers/orders");
 
-const getOrdersController = async (req, res) => {
+const getAllOrdersController = async (req, res) => {
   try {
-    const orders = await getOrders();
+    const orders = await getAllOrders();
     res.status(200).send(orders);
-  } catch (error) {
+  } catch (err) {
+    res.status(404);
+    throw err;
+  }
+};
+const getUserOrdersController = async (req, res) => {
+  try {
+    const orders = await getUserOrders(req.params.userId);
+    res.status(200).send(orders);
+  } catch (err) {
     res.status(404);
     throw err;
   }
@@ -16,17 +27,17 @@ const getOrdersController = async (req, res) => {
 
 const getOrdersByIdController = async (req, res) => {
   try {
-    const order = await getOrdersById(req.params.orderId);
+    const order = await getOrdersById(req.params.orderId, req.params.userId);
     res.status(200).send(order);
-  } catch (error) {
-    res.status(404);
+  } catch (err) {
+    res.status(404); 
     throw err;
   }
 };
 
 const getOrderItemsByIdController = async (req, res) => {
   try {
-    const orderItems = await getOrderItemsById(req.params.orderId);
+    const orderItems = await getOrderItemsById(req.params.orderId, req.params.userId);
     res.status(200).send(orderItems);
   } catch (err) {
     res.status(404);
@@ -34,10 +45,22 @@ const getOrderItemsByIdController = async (req, res) => {
   }
 };
 
+const deleteOrderController = async (req, res) => {
+  try {
+    const deletedOrder = await deleteOrder(req.params.orderId, req.params.userId);
+    res.status(200).send(deletedOrder);
+  } catch (err) {
+    res.status(404);
+    throw err;
+  }
+}
+
 
 
 module.exports = {
-  getOrdersController,
+  getAllOrdersController,
+  getUserOrdersController,
   getOrdersByIdController,
   getOrderItemsByIdController,
+  deleteOrderController
 };

@@ -2,8 +2,10 @@ const ordersRouter = require("express").Router();
 
 const {
   getAllOrdersController,
+  getUserOrdersController,
   getOrdersByIdController,
   getOrderItemsByIdController,
+  deleteOrderController,
 } = require("../controllers/orders");
 
 module.exports = (app) => {
@@ -11,8 +13,12 @@ module.exports = (app) => {
 
   ordersRouter.get("/", getAllOrdersController);
 
-  ordersRouter.get("/:orderId", getOrdersByIdController);
+  ordersRouter.get("/:userId", getUserOrdersController);
 
-  ordersRouter.get("/:orderId/details", getOrderItemsByIdController);
+  ordersRouter.get("/:userId/:orderId", getOrdersByIdController);
+
+  ordersRouter.delete("/:userId/:orderId", deleteOrderController);
+
+  ordersRouter.get("/:userId/:orderId/details", getOrderItemsByIdController);
 }
 
