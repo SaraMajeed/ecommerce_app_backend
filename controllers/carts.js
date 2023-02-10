@@ -9,34 +9,32 @@ const {
   // getSingleProductInCart,
 } = require("../helpers/carts");
 
-const getCartsController = async (req, res) => {
+const getCartsController = async (req, res, next) => {
   try {
     const carts = await getCarts();
     res.status(200).send(carts);
   } catch (err) {
-    res.status(404);
-    throw err;
+    // Use the next middleware to handle errors
+    next(err);
   }
 };
 
-const getCartByUserIdController = async (req, res) => {
+const getCartByUserIdController = async (req, res, next) => {
   try {
     // const cartId = req.params.cartId;
     const cart = await getCartByUserId(req.params.userId);
     res.status(200).send(cart);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const getProductsInCartController = async (req, res) => {
+const getProductsInCartController = async (req, res, next) => {
   try {
     const productsInCart = await getProductsInCart(req.params.userId);
     res.status(200).send(productsInCart);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
@@ -55,7 +53,7 @@ const getProductsInCartController = async (req, res) => {
 //   }
 // };
 
-const addProductToCartController = async (req, res) => {
+const addProductToCartController = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
     const { quantity } = req.body;
@@ -68,12 +66,11 @@ const addProductToCartController = async (req, res) => {
 
     res.status(201).send(newProductInCart);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const updateProductsInCartController = async (req, res) => {
+const updateProductsInCartController = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
     const { quantity } = req.body;
@@ -86,12 +83,11 @@ const updateProductsInCartController = async (req, res) => {
 
     res.status(200).send(updatedProductsInCart);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const deleteProductInCartController = async (req, res) => {
+const deleteProductInCartController = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
 
@@ -99,11 +95,9 @@ const deleteProductInCartController = async (req, res) => {
       cartId,
       productId,
     });
-
     res.status(200).send(deletedProductInCart);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
@@ -113,10 +107,9 @@ const emptyCartController = async (req, res) => {
 
     res.status(200).send(deletedProducts);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
-}
+};
 
 module.exports = {
   getCartsController,
@@ -125,6 +118,6 @@ module.exports = {
   getProductsInCartController,
   updateProductsInCartController,
   deleteProductInCartController,
-  emptyCartController
+  emptyCartController,
   // getSingleProductInCartController,
 };
