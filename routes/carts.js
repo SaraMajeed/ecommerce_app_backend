@@ -21,9 +21,9 @@ module.exports = (app) => {
 
   cartsRouter.get("/:userId", isLoggedIn, getCartByUserIdController);
 
-  cartsRouter.post("/:cartId", isLoggedIn, addProductToCartController);
+  cartsRouter.post("/:cartId/:productId", isLoggedIn, addProductToCartController);
 
-  cartsRouter.put("/:cartId", isLoggedIn, updateProductsInCartController);
+  cartsRouter.put("/:cartId/:productId", isLoggedIn, updateProductsInCartController);
 
   cartsRouter.delete("/:cartId", isLoggedIn, emptyCartController);
 

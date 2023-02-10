@@ -57,8 +57,8 @@ const getProductsInCartController = async (req, res) => {
 
 const addProductToCartController = async (req, res) => {
   try {
-    const cartId = req.params.cartId;
-    const { productId, quantity } = req.body;
+    const { cartId, productId } = req.params;
+    const { quantity } = req.body;
 
     const newProductInCart = await addProductToCart({
       cartId,
@@ -75,8 +75,8 @@ const addProductToCartController = async (req, res) => {
 
 const updateProductsInCartController = async (req, res) => {
   try {
-    const cartId = req.params.cartId;
-    const { productId, quantity } = req.body;
+    const { cartId, productId } = req.params;
+    const { quantity } = req.body;
 
     const updatedProductsInCart = await updateProductsInCart({
       cartId,
