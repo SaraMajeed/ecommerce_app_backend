@@ -14,11 +14,11 @@ module.exports = (app) => {
 
   productRouter.get("/", getProductsController);
 
-  productRouter.post("/", createNewProductController);
+  productRouter.post("/", createNewProductController); // admin only
 
   productRouter.get("/:productId", getProductByIdController);
 
-  productRouter.put("/:productId", updateProductByIdController)
+  productRouter.put("/:productId", updateProductByIdController) // admin only
 
-  productRouter.delete("/:productId", deleteProductByIdController);
+  productRouter.delete("/:productId", deleteProductByIdController); // admin only
 };

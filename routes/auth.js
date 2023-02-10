@@ -7,7 +7,7 @@ const {
   logoutUserController,
 } = require("../controllers/auth");
 
-const { isLoggedIn } = require("../helpers/users");
+const { isLoggedIn } = require("../middleware/authMiddleware");
 
 module.exports = (app, passport) => {
   app.use("/auth", authRouter); 

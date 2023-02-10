@@ -8,17 +8,17 @@ const {
   deleteOrderController,
 } = require("../controllers/orders");
 
+const { isLoggedIn } = require("../middleware/authMiddleware");
+
 module.exports = (app) => {
   app.use("/orders", ordersRouter);
 
-  ordersRouter.get("/", getAllOrdersController);
+  ordersRouter.get("/", getAllOrdersController); // admin only
 
-  ordersRouter.get("/:userId", getUserOrdersController);
+  ordersRouter.get("/:userId", isLoggedIn, getUserOrdersController);
 
-  ordersRouter.get("/:userId/:orderId", getOrdersByIdController);
+  ordersRouter.get("/:userId/:orderId", isLoggedIn, getOrdersByIdController);
 
-  ordersRouter.delete("/:userId/:orderId", deleteOrderController);
-
-  ordersRouter.get("/:userId/:orderId/details", getOrderItemsByIdController);
+  ordersRouter.get("/:userId/:orderId/details", isLoggedIn, getOrderItemsByIdController);
 }
 

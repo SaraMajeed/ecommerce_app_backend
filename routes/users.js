@@ -6,20 +6,20 @@ const {
   deleteUserByIdController,
 } = require("../controllers/users");
 
-
+const { isLoggedIn } = require("../middleware/authMiddleware");
 
 const userRouter = Router();
 
 module.exports = (app) => {
   app.use("/users", userRouter);
 
-  userRouter.get("/", getAllUsersController);
+  userRouter.get("/", getAllUsersController); //admin only
 
-  userRouter.get("/:id", getUserByIdController);
+  userRouter.get("/:id", isLoggedIn, getUserByIdController);
 
-  userRouter.put("/:id", updateUserByIdController);
+  userRouter.put("/:id", isLoggedIn, updateUserByIdController);
 
-  userRouter.delete("/:id", deleteUserByIdController);
+  userRouter.delete("/:id", isLoggedIn, deleteUserByIdController);
 
   
 
