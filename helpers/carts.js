@@ -1,19 +1,14 @@
 const pool = require("../db/db");
+const createError = require("http-errors");
 
-const { getProductById } = require("./products")
+const { getProductById } = require("./products");
 
 const getCarts = async () => {
-  try {
-    const carts = await pool.query("SELECT * FROM cart");
-
-    if (carts.rows?.length) {
-      return carts.rows;
-    }
-
-    return null;
-  } catch (err) {
-    throw err;
+  const carts = await pool.query("SELECT * FROM cart");
+  if (carts.rows?.length) {
+    return carts.rows;
   }
+  return null;
 };
 
 const createCart = async (id) => {
@@ -28,16 +23,10 @@ const createCart = async (id) => {
 };
 
 const emptyCart = async (cartId) => {
-  try {
-    const deleteQuery =
-      "DELETE FROM carts_products WHERE cart_id = $1 RETURNING *";
-
-    const deletedProduct = await pool.query(deleteQuery, [cartId]);
-
-    return deletedProduct.rows;
-  } catch (err) {
-    throw err;
-  }
+  const deleteQuery =
+    "DELETE FROM carts_products WHERE cart_id = $1 RETURNING *";
+  const deletedProduct = await pool.query(deleteQuery, [cartId]);
+  return deletedProduct.rows;
 };
 
 const deleteCart = async (userId) => {
@@ -57,22 +46,18 @@ const deleteCart = async (userId) => {
 };
 
 const getCartByUserId = async (userId) => {
-  try {
-    const selectQuery = {
-      query: "SELECT * FROM cart WHERE user_id = $1",
-      values: [userId],
-    };
+  const selectQuery = {
+    query: "SELECT * FROM cart WHERE user_id = $1",
+    values: [userId],
+  };
 
-    const userCart = await pool.query(selectQuery.query, selectQuery.values);
+  const userCart = await pool.query(selectQuery.query, selectQuery.values);
 
-    if (userCart.rows?.length) {
-      return userCart.rows;
-    }
-
-    return null;
-  } catch (err) {
-    throw err;
+  if (userCart.rows?.length) {
+    return userCart.rows;
   }
+
+  return null;
 };
 
 // const getCartById = async (data) => {
@@ -97,20 +82,16 @@ const getCartByUserId = async (userId) => {
 // };
 
 const getProductsInCart = async (userId) => {
-  try {
-    const query =
-      "SELECT product.id, product.name, product.description, product.category, carts_products.quantity, SUM(product.price * carts_products.quantity) AS price FROM cart JOIN carts_products ON carts_products.cart_id = cart.id JOIN product ON product.id = carts_products.product_id WHERE user_id = $1 GROUP BY product.id, carts_products.quantity";
+  const query =
+    "SELECT product.id, product.name, product.description, product.category, carts_products.quantity, SUM(product.price * carts_products.quantity) AS price FROM cart JOIN carts_products ON carts_products.cart_id = cart.id JOIN product ON product.id = carts_products.product_id WHERE user_id = $1 GROUP BY product.id, carts_products.quantity";
 
-    const productsInCart = await pool.query(query, [userId]);
+  const productsInCart = await pool.query(query, [userId]);
 
-    if (productsInCart.rows?.length) {
-      return productsInCart.rows;
-    }
-
-    return null;
-  } catch (err) {
-    throw err;
+  if (productsInCart.rows?.length) {
+    return productsInCart.rows;
   }
+
+  return null;
 };
 
 const getSingleProductInCart = async (data) => {
@@ -139,93 +120,85 @@ const getSingleProductInCart = async (data) => {
 };
 
 const addProductToCart = async (data) => {
-  try {
-    const { cartId, productId, quantity } = data;
+  const { cartId, productId, quantity } = data;
 
-    const insert = {
-      query:
-        "INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
-      values: [cartId, productId, quantity],
-    };
+  const insert = {
+    query:
+      "INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
+    values: [cartId, productId, quantity],
+  };
 
-    //checks if product exists before adding it
-    const productExists = await getProductById(productId);
+  // @SaraMajeed this part is probably not necessary. If the product is displaying on the front-end
+  // then it MUST exist in the database as that's where we got it from.
 
-    if (productExists) {
-      const insertProduct = await pool.query(insert.query, insert.values);
-       return insertProduct.rows[0];
-    }
+  //checks if product exists before adding it
+  // const productExists = await getProductById(productId);
 
-    return "Cannot add! This product does not exist!";
-   
-  } catch (err) {
-    throw err;
-  }
+  //if (productExists) {
+  const insertProduct = await pool.query(insert.query, insert.values);
+  return insertProduct.rows[0];
+  // }
+
+  //return "Cannot add! This product does not exist!";
 };
 
 const updateProductsInCart = async (data) => {
-  try {
-    const { cartId, productId, quantity } = data;
+  const { cartId, productId, quantity } = data;
 
-    const updateQuery = {
-      query:
-        "UPDATE carts_products SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING *",
-      values: [quantity, cartId, productId],
-    };
+  const updateQuery = {
+    query:
+      "UPDATE carts_products SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING *",
+    values: [quantity, cartId, productId],
+  };
 
-    //checks if product exists in cart before updating data
-    const productExistsInCart = await getSingleProductInCart({
-      cartId,
-      productId,
-    });
+  //checks if product exists in cart before updating data
 
-    if (productExistsInCart) {
-      const updatedCart = await pool.query(
-        updateQuery.query,
-        updateQuery.values
-      );
+  // @SaraMajeed this is probably not needed, as if a product is being displayed on the front-end
+  // as being in their cart, it should be in their cart in the database.
 
-      return updatedCart.rows;
-    }
+  // const productExistsInCart = await getSingleProductInCart({
+  //   cartId,
+  //   productId,
+  // });
 
-    return "Cannot update! This product does not exist in your cart!";
+  //if (productExistsInCart) {
+  const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
 
-  } catch (err) {
-    throw err;
-  }
+  return updatedCart.rows;
+  //}
+
+  //return "Cannot update! This product does not exist in your cart!";
 };
 
 const deleteProductInCart = async (data) => {
-  try {
-    const { cartId, productId } = data;
+  const { cartId, productId } = data;
 
-    const deleteQuery = {
-      query:
-        "DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2 RETURNING *",
-      values: [cartId, productId],
-    };
+  const deleteQuery = {
+    query:
+      "DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2 RETURNING *",
+    values: [cartId, productId],
+  };
 
-    //checks if product exists in cart before deleting it
-    const productExistsInCart = await getSingleProductInCart({
-      cartId,
-      productId,
-    });
+  //checks if product exists in cart before deleting it
 
-    if (!productExistsInCart) {
-      return "Cannot delete! This product does not exist in your cart!";
-    }
+  // probably not needed
+  // const productExistsInCart = await getSingleProductInCart({
+  //   cartId,
+  //   productId,
+  // });
 
-    const deletedProduct = await pool.query(
-      deleteQuery.query,
-      deleteQuery.values
-    );
+  // if (!productExistsInCart) {
+  //   return "Cannot delete! This product does not exist in your cart!";
+  // }
 
-    return `Sucessfully deleted: 
+  const deletedProduct = await pool.query(
+    deleteQuery.query,
+    deleteQuery.values
+  );
+
+  return `Sucessfully deleted: 
       product: ${deletedProduct.rows[0].product_id}
       quantity: ${deletedProduct.rows[0].quantity}`;
-  } catch (err) {
-    throw err;
-  }
 };
 
 module.exports = {
