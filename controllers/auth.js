@@ -1,23 +1,22 @@
-const { registerUser, loginUser } = require("../helpers/users");
+const authHelpers = require("../helpers/users");
 
-const registerUserController = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    const newUser = await registerUser({ username, email, password });
+    const newUser = await authHelpers.registerUser({ username, email, password });
 
     res.status(201).send(newUser[0]);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const loginUserController = async (req, res, next) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const response = await loginUser({ email, password });
+    const response = await authHelpers.loginUser({ email, password });
 
     res.status(200).send(`Logged in as ${response.username}`);
   } catch (err) {
@@ -25,7 +24,7 @@ const loginUserController = async (req, res, next) => {
   }
 };
 
-const logoutUserController = async (req, res) => {
+const logoutUser = async (req, res, next) => {
   req.logout(function (err) {
     if (err) {
       return next(err);
@@ -37,7 +36,7 @@ const logoutUserController = async (req, res) => {
 };
 
 module.exports = {
-  registerUserController,
-  loginUserController,
-  logoutUserController,
+  registerUser,
+  loginUser,
+  logoutUser,
 };

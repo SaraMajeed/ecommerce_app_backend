@@ -1,10 +1,5 @@
 const { Router } = require("express");
-const {
-  getAllUsersController,
-  getUserByIdController,
-  updateUserByIdController,
-  deleteUserByIdController,
-} = require("../controllers/users");
+const usersController = require("../controllers/users");
 
 const { isLoggedIn } = require("../middleware/authMiddleware");
 
@@ -13,14 +8,12 @@ const userRouter = Router();
 module.exports = (app) => {
   app.use("/users", userRouter);
 
-  userRouter.get("/", getAllUsersController); //admin only
+  userRouter.get("/", usersController.getAllUsers); //admin only
 
-  userRouter.get("/:id", isLoggedIn, getUserByIdController);
+  userRouter.get("/:id", isLoggedIn, usersController.getUserById);
 
-  userRouter.put("/:id", isLoggedIn, updateUserByIdController);
+  userRouter.put("/:id", isLoggedIn, usersController.updateUserById);
 
-  userRouter.delete("/:id", isLoggedIn, deleteUserByIdController);
-
-  
+  userRouter.delete("/:id", isLoggedIn, usersController.deleteUserById);
 
 };

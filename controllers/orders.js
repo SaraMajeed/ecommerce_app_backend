@@ -1,43 +1,39 @@
-const {
-  getAllOrders,
-  getUserOrders,
-  getOrdersById,
-  getOrderItemsById,
-  deleteOrder,
-} = require("../helpers/orders");
+const orderHelpers = require("../helpers/orders");
 
-const getAllOrdersController = async (req, res, next) => {
+const getAllOrders = async (req, res, next) => {
   try {
-    const orders = await getAllOrders();
+    const orders = await orderHelpers.getAllOrders();
     res.status(200).send(orders);
   } catch (err) {
-    // @SaraMajeed
     // Use the next() call to trigger the error
     // handler middleware defined in /loaders/index.js
     next(err);
   }
 };
-const getUserOrdersController = async (req, res, next) => {
+const getUserOrders = async (req, res, next) => {
   try {
-    const orders = await getUserOrders(req.params.userId);
+    const orders = await orderHelpers.getUserOrders(req.params.userId);
     res.status(200).send(orders);
   } catch (err) {
     next(err);
   }
 };
 
-const getOrdersByIdController = async (req, res, next) => {
+const getOrdersById = async (req, res, next) => {
   try {
-    const order = await getOrdersById(req.params.orderId, req.params.userId);
+    const order = await orderHelpers.getOrdersById(
+      req.params.orderId,
+      req.params.userId
+    );
     res.status(200).send(order);
   } catch (err) {
     next(err);
   }
 };
 
-const getOrderItemsByIdController = async (req, res, next) => {
+const getOrderItemsById = async (req, res, next) => {
   try {
-    const orderItems = await getOrderItemsById(
+    const orderItems = await orderHelpers.getOrderItemsById(
       req.params.orderId,
       req.params.userId
     );
@@ -47,9 +43,9 @@ const getOrderItemsByIdController = async (req, res, next) => {
   }
 };
 
-const deleteOrderController = async (req, res, next) => {
+const deleteOrder = async (req, res, next) => {
   try {
-    const deletedOrder = await deleteOrder(
+    const deletedOrder = await orderHelpers.deleteOrder(
       req.params.orderId,
       req.params.userId
     );
@@ -60,9 +56,9 @@ const deleteOrderController = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllOrdersController,
-  getUserOrdersController,
-  getOrdersByIdController,
-  getOrderItemsByIdController,
-  deleteOrderController,
+  getAllOrders,
+  getUserOrders,
+  getOrdersById,
+  getOrderItemsById,
+  deleteOrder,
 };

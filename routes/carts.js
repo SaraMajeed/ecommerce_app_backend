@@ -1,12 +1,4 @@
-const {
-  addProductToCartController,
-  getCartsController,
-  getCartByUserIdController,
-  getProductsInCartController,
-  updateProductsInCartController,
-  deleteProductInCartController,
-  emptyCartController
-} = require("../controllers/carts");
+const cartsController = require("../controllers/carts");
 
 const { getUserById } = require("../helpers/users");
 
@@ -17,23 +9,35 @@ const cartsRouter = require("express").Router();
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
 
-  cartsRouter.get("/", getCartsController); //admin only
+  cartsRouter.get("/", cartsController.getCarts); //admin only
 
-  cartsRouter.get("/:userId", isLoggedIn, getCartByUserIdController);
+  cartsRouter.get("/:userId", isLoggedIn, cartsController.getCartByUserId);
 
-  cartsRouter.post("/:cartId/:productId", isLoggedIn, addProductToCartController);
+  cartsRouter.post(
+    "/:cartId/:productId",
+    isLoggedIn,
+    cartsController.addProductToCart
+  );
 
-  cartsRouter.put("/:cartId/:productId", isLoggedIn, updateProductsInCartController);
+  cartsRouter.put(
+    "/:cartId/:productId",
+    isLoggedIn,
+    cartsController.updateProductsInCart
+  );
 
-  cartsRouter.delete("/:cartId", isLoggedIn, emptyCartController);
+  cartsRouter.delete("/:cartId", isLoggedIn, cartsController.emptyCart);
 
   cartsRouter.delete(
     "/:cartId/:productId",
     isLoggedIn,
-    deleteProductInCartController
+    cartsController.deleteProductInCart
   );
 
-  cartsRouter.get("/:userId/products", isLoggedIn, getProductsInCartController);
+  cartsRouter.get(
+    "/:userId/products",
+    isLoggedIn,
+    cartsController.getProductsInCart
+  );
 
   // cartsRouter.post("/:cartId/checkout", isLoggedIn, checkoutCartController);
 

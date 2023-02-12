@@ -1,7 +1,4 @@
 const pool = require("../db/db");
-const createError = require("http-errors");
-
-const { getProductById } = require("./products");
 
 const getCarts = async () => {
   const carts = await pool.query("SELECT * FROM cart");
@@ -11,10 +8,10 @@ const getCarts = async () => {
   return null;
 };
 
-const createCart = async (id) => {
+const createCart = async (userId) => {
   try {
     const query = "INSERT INTO cart (user_id) VALUES ($1) RETURNING *";
-    const newCart = await pool.query(query, [id]);
+    const newCart = await pool.query(query, [userId]);
 
     return newCart.rows;
   } catch (err) {
@@ -59,27 +56,6 @@ const getCartByUserId = async (userId) => {
 
   return null;
 };
-
-// const getCartById = async (data) => {
-//   try {
-//     const { cartId, userId } = data;
-
-//     const selectQuery = {
-//       query: "SELECT * FROM cart WHERE user_id = $1 AND id = $2",
-//       values: [userId, cartId],
-//     };
-
-//     const userCart = await pool.query(selectQuery.query, selectQuery.values);
-
-//     if (userCart.rows?.length) {
-//       return userCart.rows;
-//     }
-
-//     return null;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
 
 const getProductsInCart = async (userId) => {
   const query =
@@ -128,18 +104,10 @@ const addProductToCart = async (data) => {
     values: [cartId, productId, quantity],
   };
 
-  // @SaraMajeed this part is probably not necessary. If the product is displaying on the front-end
-  // then it MUST exist in the database as that's where we got it from.
-
-  //checks if product exists before adding it
-  // const productExists = await getProductById(productId);
-
-  //if (productExists) {
   const insertProduct = await pool.query(insert.query, insert.values);
-  return insertProduct.rows[0];
-  // }
 
-  //return "Cannot add! This product does not exist!";
+  return insertProduct.rows[0];
+
 };
 
 const updateProductsInCart = async (data) => {
@@ -151,23 +119,10 @@ const updateProductsInCart = async (data) => {
     values: [quantity, cartId, productId],
   };
 
-  //checks if product exists in cart before updating data
-
-  // @SaraMajeed this is probably not needed, as if a product is being displayed on the front-end
-  // as being in their cart, it should be in their cart in the database.
-
-  // const productExistsInCart = await getSingleProductInCart({
-  //   cartId,
-  //   productId,
-  // });
-
-  //if (productExistsInCart) {
   const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
 
   return updatedCart.rows;
-  //}
 
-  //return "Cannot update! This product does not exist in your cart!";
 };
 
 const deleteProductInCart = async (data) => {
@@ -178,18 +133,6 @@ const deleteProductInCart = async (data) => {
       "DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2 RETURNING *",
     values: [cartId, productId],
   };
-
-  //checks if product exists in cart before deleting it
-
-  // probably not needed
-  // const productExistsInCart = await getSingleProductInCart({
-  //   cartId,
-  //   productId,
-  // });
-
-  // if (!productExistsInCart) {
-  //   return "Cannot delete! This product does not exist in your cart!";
-  // }
 
   const deletedProduct = await pool.query(
     deleteQuery.query,

@@ -1,24 +1,18 @@
 const { Router } = require("express");
 const productRouter = Router();
 
-const {
-  getProductsController,
-  getProductByIdController,
-  updateProductByIdController,
-  deleteProductByIdController,
-  createNewProductController
-} = require("../controllers/products");
+const productsController = require("../controllers/products");
 
 module.exports = (app) => {
   app.use("/products", productRouter);
 
-  productRouter.get("/", getProductsController);
+  productRouter.get("/", productsController.getProducts);
 
-  productRouter.post("/", createNewProductController); // admin only
+  productRouter.post("/", productsController.createNewProduct); // admin only
 
-  productRouter.get("/:productId", getProductByIdController);
+  productRouter.get("/:productId", productsController.getProductById);
 
-  productRouter.put("/:productId", updateProductByIdController) // admin only
+  productRouter.put("/:productId", productsController.updateProductById); // admin only
 
-  productRouter.delete("/:productId", deleteProductByIdController); // admin only
+  productRouter.delete("/:productId", productsController.deleteProductById); // admin only
 };

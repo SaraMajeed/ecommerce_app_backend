@@ -1,17 +1,8 @@
-const {
-  getCarts,
-  getCartByUserId,
-  getProductsInCart,
-  addProductToCart,
-  updateProductsInCart,
-  deleteProductInCart,
-  emptyCart,
-  // getSingleProductInCart,
-} = require("../helpers/carts");
+const cartHelpers = require("../helpers/carts");
 
-const getCartsController = async (req, res, next) => {
+const getCarts = async (req, res, next) => {
   try {
-    const carts = await getCarts();
+    const carts = await cartHelpers.getCarts();
     res.status(200).send(carts);
   } catch (err) {
     // Use the next middleware to handle errors
@@ -19,19 +10,20 @@ const getCartsController = async (req, res, next) => {
   }
 };
 
-const getCartByUserIdController = async (req, res, next) => {
+const getCartByUserId = async (req, res, next) => {
   try {
-    // const cartId = req.params.cartId;
-    const cart = await getCartByUserId(req.params.userId);
+    const cart = await cartHelpers.getCartByUserId(req.params.userId);
     res.status(200).send(cart);
   } catch (err) {
     next(err);
   }
 };
 
-const getProductsInCartController = async (req, res, next) => {
+const getProductsInCart = async (req, res, next) => {
   try {
-    const productsInCart = await getProductsInCart(req.params.userId);
+    const productsInCart = await cartHelpers.getProductsInCart(
+      req.params.userId
+    );
     res.status(200).send(productsInCart);
   } catch (err) {
     next(err);
@@ -53,12 +45,12 @@ const getProductsInCartController = async (req, res, next) => {
 //   }
 // };
 
-const addProductToCartController = async (req, res, next) => {
+const addProductToCart = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
     const { quantity } = req.body;
 
-    const newProductInCart = await addProductToCart({
+    const newProductInCart = await cartHelpers.addProductToCart({
       cartId,
       productId,
       quantity,
@@ -70,12 +62,12 @@ const addProductToCartController = async (req, res, next) => {
   }
 };
 
-const updateProductsInCartController = async (req, res, next) => {
+const updateProductsInCart = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
     const { quantity } = req.body;
 
-    const updatedProductsInCart = await updateProductsInCart({
+    const updatedProductsInCart = await cartHelpers.updateProductsInCart({
       cartId,
       productId,
       quantity,
@@ -87,37 +79,37 @@ const updateProductsInCartController = async (req, res, next) => {
   }
 };
 
-const deleteProductInCartController = async (req, res, next) => {
+const deleteProductInCart = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
 
-    const deletedProductInCart = await deleteProductInCart({
+    const deletedProductInCart = await cartHelpers.deleteProductInCart({
       cartId,
       productId,
     });
-    res.status(200).send(deletedProductInCart);
+    res.status(204).send(deletedProductInCart);
   } catch (err) {
     next(err);
   }
 };
 
-const emptyCartController = async (req, res) => {
+const emptyCart = async (req, res) => {
   try {
-    const deletedProducts = await emptyCart(req.params.cartId);
+    const deletedProducts = await cartHelpers.emptyCart(req.params.cartId);
 
-    res.status(200).send(deletedProducts);
+    res.status(204).send(deletedProducts);
   } catch (err) {
     next(err);
   }
 };
 
 module.exports = {
-  getCartsController,
-  addProductToCartController,
-  getCartByUserIdController,
-  getProductsInCartController,
-  updateProductsInCartController,
-  deleteProductInCartController,
-  emptyCartController,
+  getCarts,
+  addProductToCart,
+  getCartByUserId,
+  getProductsInCart,
+  updateProductsInCart,
+  deleteProductInCart,
+  emptyCart,
   // getSingleProductInCartController,
 };

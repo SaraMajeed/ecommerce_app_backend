@@ -2,12 +2,6 @@ const pool = require("../db/db");
 
 // gets all orders
 const getAllOrders = async () => {
-  // get rid of nested try/catch block as all it was
-  // doing was throwing the same error in the catch block.
-  // you have this a lot in your code, check where these
-  // functions are getting called, and if it is already
-  // inside a try/catch block you most likely don't need it
-
   const query =
     "SELECT orders.id, orders.user_id, users.email, orders.total_price FROM orders JOIN users ON users.id = orders.user_id";
   const orders = await pool.query(query);
@@ -20,11 +14,11 @@ const getAllOrders = async () => {
 };
 
 // gets all orders for a specific user
-const getUserOrders = async (id) => {
+const getUserOrders = async (userId) => {
   const query =
     "SELECT orders.id, orders.user_id, users.email, orders.total_price FROM orders JOIN users ON users.id = orders.user_id AND orders.user_id = $1";
 
-  const orders = await pool.query(query, [id]);
+  const orders = await pool.query(query, [userId]);
 
   if (orders.rows?.length) {
     return orders.rows;
@@ -33,7 +27,6 @@ const getUserOrders = async (id) => {
   return "This user has not ordered any products!";
 };
 
-// make it clear what id's are being used
 const getOrdersById = async (orderId, userId) => {
   const query = "SELECT * FROM orders WHERE id = $1 AND user_id = $2";
 
@@ -46,14 +39,14 @@ const getOrdersById = async (orderId, userId) => {
   return null;
 };
 
-const getOrderItemsById = async (id, userId) => {
+const getOrderItemsById = async (orderId, userId) => {
   const query =
     "SELECT product.id, product.name, product.description, product.category, products_orders.quantity, product.price AS price_per_unit FROM product JOIN products_orders ON products_orders.product_id = product.id WHERE orders_id = $1 ORDER BY product.id";
 
-  // check of order exists before getting order details
-  const orderExists = await getOrdersById(id, userId);
+  // check if order exists before getting order details
+  const orderExists = await getOrdersById(orderId, userId);
   if (orderExists) {
-    const orderDetails = await pool.query(query, [id]);
+    const orderDetails = await pool.query(query, [orderId]);
 
     return orderDetails.rows;
   }
@@ -63,7 +56,6 @@ const getOrderItemsById = async (id, userId) => {
 
 const deleteOrder = async (orderId, userId) => {
   const orderExists = await getOrdersById(orderId, userId);
-  console.log(orderExists);
 
   if (orderExists) {
     const query = "DELETE FROM orders WHERE id = $1 RETURNING *";

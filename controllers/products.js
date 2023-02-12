@@ -1,49 +1,39 @@
-const {
-  getProducts,
-  getProductsByCategory,
-  getProductByName,
-  getProductById,
-  updateProductById,
-  deleteProductById,
-  createNewProduct,
-} = require("../helpers/products");
+const productHelpers = require("../helpers/products");
 
-const getProductsController = async (req, res) => {
+const getProducts = async (req, res, next) => {
   const { category, name } = req.query;
 
   try {
     let response;
     if (category) {
-      response = await getProductsByCategory(category);
+      response = await productHelpers.getProductsByCategory(category);
     } else if (name) {
-      response = await getProductByName(name);
+      response = await productHelpers.getProductByName(name);
     } else {
-      response = await getProducts();
+      response = await productHelpers.getProducts();
     }
 
     res.status(200).send(response);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const getProductByIdController = async (req, res) => {
+const getProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const response = await getProductById(productId);
+    const response = await productHelpers.getProductById(productId);
 
     res.status(200).send(response);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const createNewProductController = async (req, res) => {
+const createNewProduct = async (req, res, next) => {
   try {
     const { name, description, price, category } = req.body;
-    const response = await createNewProduct({
+    const response = await productHelpers.createNewProduct({
       name,
       description,
       price,
@@ -52,16 +42,15 @@ const createNewProductController = async (req, res) => {
 
     res.status(201).send(response);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
-const updateProductByIdController = async (req, res) => {
+const updateProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
     const { name, description, price, category } = req.body;
-    const response = await updateProductById({
+    const response = await productHelpers.updateProductById({
       name,
       description,
       price,
@@ -69,34 +58,29 @@ const updateProductByIdController = async (req, res) => {
       productId,
     });
 
-    if (typeof response === "string") {
-      res.status(404).send(response);
-    } else {
-      res.status(200).send(response);
-    }
+    res.status(200).send(response);
+    
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
 //TODO: fix constraint violation error
-const deleteProductByIdController = async (req, res) => {
+const deleteProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const response = await deleteProductById(productId);
+    const response = await productHelpers.deleteProductById(productId);
 
     res.status(200).send(response);
   } catch (err) {
-    res.status(404);
-    throw err;
+    next(err);
   }
 };
 
 module.exports = {
-  getProductsController,
-  getProductByIdController,
-  updateProductByIdController,
-  deleteProductByIdController,
-  createNewProductController,
+  getProducts,
+  getProductById,
+  updateProductById,
+  deleteProductById,
+  createNewProduct,
 };

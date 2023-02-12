@@ -1,7 +1,7 @@
 const pool = require("../db/db");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
-const { createCart, deleteCart } = require('../helpers/carts')
+const { createCart, deleteCart } = require("../helpers/carts");
 
 const encryptPassword = async (password) => {
   //generate salt
@@ -13,178 +13,129 @@ const encryptPassword = async (password) => {
 };
 
 const getAllUsers = async () => {
+  const users = await pool.query("SELECT * FROM users");
 
-  try {
-    const users = await pool.query("SELECT * FROM users")
-
-    if (users.rows?.length){
-      return users.rows;
-    }
-
-    return null;
-
-  } catch (err) {
-    throw err;
+  if (users.rows?.length) {
+    return users.rows;
   }
+
+  return null;
 };
 
-const getUserById = async (id) => {
+const getUserById = async (userId) => {
+  const user = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
 
-  try {
-    const user = await pool.query(
-      "SELECT * FROM users WHERE id = $1",
-      [id]);
-
-    if(user.rows?.length){
-      return user.rows[0] 
-    } 
-
-    return null;
-
-  } catch (err) {
-    throw err;
+  if (user.rows?.length) {
+    return user.rows[0];
   }
 
-  
+  return null;
 };
 
 const updateUserById = async (data) => {
+  const { username, password, email, userId } = data;
 
-  try {
-    const { username, password, email, userId } = data;
+  const hashedPassword = await encryptPassword(password);
 
-    const hashedPassword = await encryptPassword(password);
+  const updateQuery = {
+    query:
+      "UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4 RETURNING username, email",
+    values: [username, hashedPassword, email, userId],
+  };
 
-    const updateQuery = {
-      query: "UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4 RETURNING username, email",
-      values: [username, hashedPassword, email, userId]
-    }
+  const updatedUser = await pool.query(updateQuery.query, updateQuery.values);
 
-    const updatedUser = await pool.query(updateQuery.query, updateQuery.values);
-      
-    return updatedUser.rows;
-  } catch (err) {
-    throw err;
-  }
-
+  return updatedUser.rows;
 };
 
 const getUserByEmail = async (email) => {
-
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email])
-    if(user.rows?.length){
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    if (user.rows?.length) {
       return user.rows[0];
     }
-    return null
-
+    return null;
   } catch (err) {
     throw err;
   }
+};
 
-}
+const deleteUserById = async (userId) => {
+  const user = await getUserById(userId);
 
-const deleteUserById = async (id) => {
+  if (user) {
+    // delete the user's cart before deleting the user to avoid foreign key contraint violation
+    const deleteUserCart = await deleteCart(userId);
 
-  try {
+    const userToDelete = await pool.query("DELETE FROM users WHERE id = $1", [
+      id,
+    ]);
 
-    const user = await getUserById(id)
-    
-    if(user){
-
-      // delete the user's cart before deleting the user to avoid foreign key contraint violation
-      const deleteUserCart = await deleteCart(id);
-
-      const userToDelete = await pool.query(
-        "DELETE FROM users WHERE id = $1",
-        [id]
-      );
-
-      return `Successfully deleted user: 
-        username: ${user.username}, 
-        email: ${user.email}
-      `
-    } 
-    return null; 
-
-  } catch (err) {
-    throw err
+    return `Successfully deleted user: 
+      username: ${user.username}, 
+      email: ${user.email}
+    `;
   }
-}
+  return null;
+};
 
 const createUser = async (data) => {
-
   try {
-    const { username, email, password } = data
+    const { username, email, password } = data;
 
-    const hashedPassword = await encryptPassword(password)
+    const hashedPassword = await encryptPassword(password);
 
     const insert = {
-      query: "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
-      values: [username, hashedPassword, email]
-    }; 
+      query:
+        "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
+      values: [username, hashedPassword, email],
+    };
 
     // Insert user data into users table
     const newUser = await pool.query(insert.query, insert.values);
 
     // Create a cart for the new user
-    const newCart = await createCart(newUser.rows[0].id)
+    const newCart = await createCart(newUser.rows[0].id);
 
-    return newUser.rows
-
+    return newUser.rows;
   } catch (err) {
-    throw err
+    throw err;
   }
-}
+};
 
 const registerUser = async (data) => {
+  let response;
+  const { username, email, password } = data;
+  const userExists = await getUserByEmail(email);
 
-  try {
-    let response; 
-    const { username, email, password } = data;
-    const userExists = await getUserByEmail(email);
-
-    if(userExists){
-      response =  "User already exists"
-    } else {
-      response = await createUser({ username, email, password });
-    }
-
-    return response
-
-  } catch (err) {
-    throw err
+  if (userExists) {
+    response = "User already exists";
+  } else {
+    response = await createUser({ username, email, password });
   }
-}
 
-
+  return response;
+};
 
 const loginUser = async (data) => {
-
   const { email, password } = data;
-  
-  try {
-    
-    const user = await getUserByEmail(email)
 
-    if(!user) {
-      throw createError(401, 'Incorrect username or password');
-    }
+  const user = await getUserByEmail(email);
 
-    const passwordIsValid = await bcrypt.compare(password, user.password);
-
-    if(!passwordIsValid){
-      throw createError(401, 'Incorrect username or password');
-    }
-
-    return user;
-  } catch (err) {
-    throw createError(500, err)
+  if (!user) {
+    throw createError(401, "Incorrect username or password");
   }
-}
 
+  const passwordIsValid = await bcrypt.compare(password, user.password);
 
+  if (!passwordIsValid) {
+    throw createError(401, "Incorrect username or password");
+  }
 
+  return user;
+};
 
 module.exports = {
   getAllUsers,
@@ -194,4 +145,4 @@ module.exports = {
   deleteUserById,
   registerUser,
   loginUser,
-}; 
+};
