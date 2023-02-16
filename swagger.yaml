@@ -273,6 +273,64 @@ paths:
                     } 
       tags:
         - Users
+    put:
+      summary: Update user details
+      description: >-
+        Update user details stored in the database - username, email and
+        password
+      operationId: updateUser
+      requestBody:
+        description: Update User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '------REPLACE THIS---------------'
+            example:
+              username: exampleUser
+              email: exampleUser@gmail.com
+              password: myNewPassword
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully updated user
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully updated user"
+                    }
+        '401':
+          description: Authorisation Error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }             
+      tags:
+        - Users
   /products:
     get:
       summary: Get products
