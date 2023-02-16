@@ -1,0 +1,520 @@
+openapi: 3.0.3
+info:
+  title: E-Commerce App REST API
+  version: 1.0.0
+  description: E-Commerce Store REST API using Node.js, Express, PostgresSQL
+externalDocs:
+  description: GitHub Repository
+  url: https://github.com/SaraMajeed/ecommerce_app_backend
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      description: Register a new user with username, email and password
+      operationId: Register
+      requestBody:
+        description: New User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '------REPLACE THIS---------------'
+            example:
+              username: exampleUser
+              email: exampleUser@gmail.com
+              password: mypassword
+      responses:
+        '201':
+          description: Successfully created user
+          content:
+            application/json:
+              examples:
+                201 Success:
+                  value: |-
+                    {
+                      "message": "User created successfully"
+                      
+                    }
+        '400':
+          description: Validation error - missing data
+          content:
+            application/json:
+              examples:
+                400 Bad Request:
+                  value: |-
+                    {
+                        "message": "Please enter all fields: username, email and password"
+                    }
+        '409':
+          description: Email already exists in database
+          content:
+            application/json:
+              examples:
+                409 Conflict:
+                  value: |-
+                    {
+                        "message": "Email already in use"
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Register
+  /auth/login:
+    post:
+      summary: Login to a user account
+      description: Login to a user account using email and password
+      operationId: Login
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '----------REPLACE THIS----------'
+            example:
+              email: exampleUser@gmail.com
+              password: mypassword
+      responses:
+        '200':
+          description: Successfully logged in
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Logged in as exampleUser"
+                    }
+        '401':
+          description: Authorization Error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "Incorrect email or password"
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Login
+  /auth/logout:
+    post:
+      summary: Logout User
+      description: Logout a user out of their account and delete session and cookie data
+      operationId: Logout
+      responses:
+        '200':
+          description: Successfully logged out user
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Logged Out Successfully"
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                         "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Logout
+  /users:
+    get:
+      summary: Get all users (ADMIN)
+      description: Gets details for all users in the database
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: json object of all users stored in the database
+        '401':
+          description: Authorisation Error
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                         "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }          
+      tags:
+        - Users
+  /users/{userId}:
+    get:
+      summary: Get user by ID
+      description: Get details for a single user by ID
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved user details
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "id": 65,
+                        "username": "exampleUser",
+                        "password": "$2b$10$DHSRSxGoknpqP.x7hVv53OhgQ920Mfgs8Flm3QvHxVWlVoTng34sK",
+                        "email": "exampleUser@example.com"
+                    }
+        '401':
+          description: Authorisation Error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }                  
+      tags:
+        - Users
+    delete:
+      summary: Delete user
+      description: Delete an existing user from the database
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully deleted user
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully deleted user",
+                        "deletedUser": {
+                            "username": "exampleUser",
+                            "email": "exampleUser@example.com"
+                        }
+                    }
+        '401':
+          description: Authorisation Error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }            
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    } 
+      tags:
+        - Users
+  /products:
+    get:
+      summary: Get products
+      description: Gets all products stored in the database
+      operationId: getAllProducts
+      parameters:
+        - name: category
+          in: query
+          description: category value used to filter list of products
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: >-
+            name value used to filter list of products containing the string
+            name within the title of the product
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved data for all products
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    [
+                        {
+                            "id": 1,
+                            "name": "productName1",
+                            "description": "description1",
+                            "price": "$25.00",
+                            "category": "category1"
+                        },
+                        {
+                            "id": 2,
+                            "name": "productName2",
+                            "description": "description2",
+                            "price": "$19.00",
+                            "category": "category2"
+                        },
+                        {
+                            "id": 3,
+                            "name": "productName3",
+                            "description": "description3",
+                            "price": "$3.00",
+                            "category": "category3"
+                        },
+                        {
+                            "id": 4,
+                            "name": "productName4",
+                            "description": "description4",
+                            "price": "$14.50",
+                            "category": "category4"
+                        }
+                    ]
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Products
+    post:
+      summary: Create new product (ADMIN)
+      description: Create new product
+      operationId: createProduct
+      requestBody:
+        description: New Product
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '------REPLACE THIS---------------'
+            example:
+              name: productName
+              description: this would be a description of the product
+              price: $25.50
+              category: product category
+      responses:
+        '201':
+          description: Successfully created a new product
+          content:
+            application/json:
+              examples:
+                201 Created:
+                  value: |-
+                    {
+                        "message": "Successfully created product",
+                        "product": {
+                            "name": "product7",
+                            "description": "description7",
+                            "price": "$41.23",
+                            "category": "category7"
+                        }
+                    }
+        '400':
+          description: Missing data
+          content:
+            application/json:
+              examples:
+                400 Bad Request:
+                  value: |-
+                    {
+                        "message": "Please provide all fields: name, description, price, category"
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Products
+  /products/{productId}:
+    get:
+      summary: Get product by ID
+      description: Retrieves single product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved product
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "id": 2,
+                        "name": "productName1",
+                        "description": "description1",
+                        "price": "$25.00",
+                        "category": "category1"
+                    }
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              examples:
+                404 Not Found:
+                  value: |-
+                    {
+                        "message": "Product not found with id: 3"
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Products
+    put:
+      summary: Update existing product (ADMIN)
+      description: Update the details of an existing product
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully updated product
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully updated product",
+                        "updatedProduct": {
+                            "name": "product7",
+                            "description": "description7",
+                            "price": "$23.99",
+                            "category": "category7"
+                        }
+                    }
+        '400':
+          description: Missing data
+          content:
+            application/json:
+              examples:
+                400 Bad Request:
+                  value: |-
+                    {
+                        "message": "Please provide all fields: name, description, price, category"
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Products
+    delete:
+      summary: Delete a product (ADMIN)
+      description: Delete an existing product from the database
+      operationId: deleteProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Products
+components:
+  schemas: null
