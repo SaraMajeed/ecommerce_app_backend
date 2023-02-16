@@ -33,14 +33,22 @@ const getProductById = async (req, res, next) => {
 const createNewProduct = async (req, res, next) => {
   try {
     const { name, description, price, category } = req.body;
-    const response = await productHelpers.createNewProduct({
+    const newProduct = await productHelpers.createNewProduct({
       name,
       description,
       price,
       category,
     });
 
-    res.status(201).send(response);
+    res.status(201).json({ 
+      message: "Successfully created product", 
+      product: {
+        name: newProduct[0].name,
+        description: newProduct[0].description,
+        price: newProduct[0].price,
+        category: newProduct[0].category,
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -58,7 +66,15 @@ const updateProductById = async (req, res, next) => {
       productId,
     });
 
-    res.status(200).send(response);
+    res.status(200).json({ 
+      message: "Successfully updated product", 
+      updatedProduct: {
+        name: response.name,
+        description: response.description,
+        price: response.price,
+        category: response.category,
+      }
+    })
     
   } catch (err) {
     next(err);

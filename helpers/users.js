@@ -70,13 +70,10 @@ const deleteUserById = async (userId) => {
     const deleteUserCart = await deleteCart(userId);
 
     const userToDelete = await pool.query("DELETE FROM users WHERE id = $1", [
-      id,
+      userId,
     ]);
 
-    return `Successfully deleted user: 
-      username: ${user.username}, 
-      email: ${user.email}
-    `;
+    return user;
   }
   return null;
 };
@@ -106,17 +103,21 @@ const createUser = async (data) => {
 };
 
 const registerUser = async (data) => {
-  let response;
+
   const { username, email, password } = data;
+
+  if(!username || !email || !password) {
+    throw createError(400, "Please enter all fields: username, email and password");
+  }
+
   const userExists = await getUserByEmail(email);
 
   if (userExists) {
-    response = "User already exists";
-  } else {
-    response = await createUser({ username, email, password });
+    throw createError(409, "Email already in use");
   }
 
-  return response;
+  return await createUser({ username, email, password });
+ 
 };
 
 const loginUser = async (data) => {
@@ -125,13 +126,13 @@ const loginUser = async (data) => {
   const user = await getUserByEmail(email);
 
   if (!user) {
-    throw createError(401, "Incorrect username or password");
+    throw createError(401, "Incorrect email or password");
   }
 
   const passwordIsValid = await bcrypt.compare(password, user.password);
 
   if (!passwordIsValid) {
-    throw createError(401, "Incorrect username or password");
+    throw createError(401, "Incorrect email or password");
   }
 
   return user;

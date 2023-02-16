@@ -29,7 +29,8 @@ const updateUserById = async (req, res, next) => {
       userId: req.user,
     });
 
-    res.status(200).send(updatedUser);
+    res.status(200).json({
+      message: "Successfully updated user" });
   } catch (err) {
     next(err);
   }
@@ -39,7 +40,13 @@ const deleteUserById = async (req, res, next) => {
   try {
     const deletedUser = await userHelpers.deleteUserById(req.user);
 
-    res.status(200).send(deletedUser);
+    res.status(200).json({ 
+      message: "Successfully deleted user",
+      deletedUser: {
+        username: deletedUser.username,
+        email: deletedUser.email,
+      }
+    });
   } catch (err) {
     next(err);
   }

@@ -45,11 +45,18 @@ const getProductById = async (productId) => {
     return product.rows[0];
   }
 
-  return null;
+  throw createError(
+    404,
+    "Product not found with id: " + productId
+  );
 };
 
 const createNewProduct = async (data) => {
   const { name, description, price, category } = data;
+
+  if (!name ||!description ||!price ||!category) {
+    throw createError(400, "Please provide all fields: name, description, price, category");
+  }
 
   const insertQuery = {
     query:
@@ -64,6 +71,13 @@ const createNewProduct = async (data) => {
 
 const updateProductById = async (data) => {
   const { name, description, price, category, productId } = data;
+
+  if (!name || !description || !price || !category) {
+    throw createError(
+      400,
+      "Please provide all fields: name, description, price, category"
+    );
+  }
 
   const updateQuery = {
     query:
@@ -82,7 +96,7 @@ const updateProductById = async (data) => {
     return updatedProduct.rows[0];
   }
 
-  throw createError(404, "Product not found");
+  throw createError(404, "Cannot update. Product not found with id: " + productId);
 };
 
 const deleteProductById = async (productId) => {
@@ -96,7 +110,7 @@ const deleteProductById = async (productId) => {
       return deletedProduct.rows;
   }
 
- throw createError(404, "Cannot Delete. Product does not exist");
+ throw createError(404, `Cannot Delete. Product with id: ${productId} does not exist`);
 };
 
 module.exports = {
