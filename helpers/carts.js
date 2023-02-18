@@ -4,7 +4,7 @@ const createError = require("http-errors");
 const { createOrder, createOrderItems } = require("./orders");
 
 const getCarts = async () => {
-  const carts = await pool.query("SELECT * FROM cart");
+  const carts = await pool.query("SELECT * FROM carts");
   if (carts.rows?.length) {
     return carts.rows;
   }
@@ -13,7 +13,7 @@ const getCarts = async () => {
 
 const createCart = async (userId) => {
   try {
-    const query = "INSERT INTO cart (user_id) VALUES ($1) RETURNING *";
+    const query = "INSERT INTO carts (user_id) VALUES ($1) RETURNING *";
     const newCart = await pool.query(query, [userId]);
 
     return newCart.rows;
@@ -23,20 +23,15 @@ const createCart = async (userId) => {
 };
 
 const emptyCart = async (cartId) => {
-  const deleteQuery =
-    "DELETE FROM carts_products WHERE cart_id = $1 RETURNING *";
+  const deleteQuery = "DELETE FROM cartitems WHERE cart_id = $1 RETURNING *";
   const deletedProduct = await pool.query(deleteQuery, [cartId]);
   return deletedProduct.rows;
 };
 
 const deleteCart = async (userId) => {
   try {
-    const cartId = await getCartByUserId(userId);
 
-    //delete products associated with a user's cart before deleting their cart to avoid a foreign key contraint violation
-    const deleteProducts = await emptyCart(cartId[0].id);
-
-    const query = "DELETE FROM cart WHERE user_id = $1 RETURNING *";
+    const query = "DELETE FROM carts WHERE user_id = $1 RETURNING *";
     const deletedCart = await pool.query(query, [userId]);
 
     return `Successfully deleted cart: ${deletedCart}`;
@@ -47,7 +42,7 @@ const deleteCart = async (userId) => {
 
 const getCartByUserId = async (userId) => {
   const selectQuery = {
-    query: "SELECT * FROM cart WHERE user_id = $1",
+    query: "SELECT * FROM carts WHERE user_id = $1",
     values: [userId],
   };
 
@@ -62,7 +57,7 @@ const getCartByUserId = async (userId) => {
 
 const getProductsInCart = async (userId) => {
   const query =
-    "SELECT product.id AS product_id, product.name, product.description, product.category, carts_products.quantity, product.price AS price_per_unit FROM cart JOIN carts_products ON carts_products.cart_id = cart.id JOIN product ON product.id = carts_products.product_id WHERE user_id = $1 GROUP BY product.id, carts_products.quantity";
+    "SELECT products.id AS product_id, products.name, products.description, products.category, cartitems.quantity, products.price AS price_per_unit FROM carts JOIN cartitems ON cartitems.cart_id = carts.id JOIN products ON products.id = cartitems.product_id WHERE user_id = $1 GROUP BY products.id, cartitems.quantity";
 
   const productsInCart = await pool.query(query, [userId]);
 
@@ -78,14 +73,13 @@ const addProductToCart = async (data) => {
 
   const insert = {
     query:
-      "INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
+      "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
     values: [cartId, productId, quantity],
   };
 
   const insertProduct = await pool.query(insert.query, insert.values);
 
   return insertProduct.rows[0];
-
 };
 
 const updateProductsInCart = async (data) => {
@@ -93,14 +87,13 @@ const updateProductsInCart = async (data) => {
 
   const updateQuery = {
     query:
-      "UPDATE carts_products SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING *",
+      "UPDATE cartitems SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING *",
     values: [quantity, cartId, productId],
   };
 
   const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
 
   return updatedCart.rows;
-
 };
 
 const deleteProductInCart = async (data) => {
@@ -108,7 +101,7 @@ const deleteProductInCart = async (data) => {
 
   const deleteQuery = {
     query:
-      "DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2 RETURNING *",
+      "DELETE FROM cartitems WHERE cart_id = $1 AND product_id = $2 RETURNING *",
     values: [cartId, productId],
   };
 
@@ -124,22 +117,23 @@ const deleteProductInCart = async (data) => {
 
 const totalPrice = (cartItems) => {
   try {
-    const total = Number(cartItems
-    .reduce((total, item, index) => {
-      return total + item.price_per_unit * item.quantity;
-    }, 0)
-    .toFixed(2));
+    const total = Number(
+      cartItems
+        .reduce((total, item, index) => {
+          return total + item.price_per_unit * item.quantity;
+        }, 0)
+        .toFixed(2)
+    );
 
-  return total;
-
+    return total;
   } catch (err) {
     throw err;
-  } 
-}
+  }
+};
 
 const checkoutCart = async (cartId, userId) => {
   const cartItems = await getProductsInCart(userId);
-
+  
   // if cart is not empty
   if (cartItems) {
     const total = totalPrice(cartItems);

@@ -41,7 +41,7 @@ const getOrdersById = async (orderId, userId) => {
 
 const getOrderItemsById = async (orderId, userId) => {
   const query =
-    "SELECT product.id, product.name, product.description, product.category, products_orders.quantity, product.price AS price_per_unit FROM product JOIN products_orders ON products_orders.product_id = product.id WHERE orders_id = $1 ORDER BY product.id";
+    "SELECT products.id, products.name, products.description, products.category, orderitems.quantity, products.price AS price_per_unit FROM products JOIN orderitems ON orderitems.product_id = products.id WHERE order_id = $1 ORDER BY products.id";
 
   // check if order exists before getting order details
   const orderExists = await getOrdersById(orderId, userId);
@@ -59,9 +59,6 @@ const deleteOrder = async (orderId, userId) => {
 
   if (orderExists) {
     const query = "DELETE FROM orders WHERE id = $1 RETURNING *";
-
-    // delete order items first to avoid foreign key contraint errors
-    const deletedOrderItems = await deleteOrderItems(orderId);
     const deletedOrder = await pool.query(query, [orderId]);
 
     return deletedOrder.rows;
@@ -70,16 +67,6 @@ const deleteOrder = async (orderId, userId) => {
   return null;
 };
 
-const deleteOrderItems = async (orderId) => {
-  try {
-    const query =
-      "DELETE FROM products_orders WHERE orders_id = $1 RETURNING *";
-    const deletedOrderItems = await pool.query(query, [orderId]);
-    return deletedOrderItems.rows;
-  } catch (err) {
-    throw err;
-  }
-};
 
 const createOrder = async (total, userId) => {
   try {
@@ -91,16 +78,15 @@ const createOrder = async (total, userId) => {
     const newOrder = await pool.query(insertQuery.query, insertQuery.values);
 
     return newOrder.rows;
-
   } catch (err) {
     throw err;
   }
-}
+};
 
 const createOrderItems = async (cartItems, orderId) => {
   try {
     const insertOrderItemsQuery =
-    "INSERT INTO products_orders (orders_id, product_id, quantity) VALUES ($1, $2, $3)";
+      "INSERT INTO orderitems (order_id, product_id, quantity) VALUES ($1, $2, $3)";
 
     for (item in cartItems) {
       await pool.query(insertOrderItemsQuery, [

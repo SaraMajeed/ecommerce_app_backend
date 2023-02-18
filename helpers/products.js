@@ -2,7 +2,7 @@ const pool = require("../db/db");
 const createError = require("http-errors");
 
 const getProducts = async () => {
-  const products = await pool.query("SELECT * FROM product ORDER BY id");
+  const products = await pool.query("SELECT * FROM products ORDER BY id");
 
   if (products.rows?.length) {
     return products.rows;
@@ -12,7 +12,7 @@ const getProducts = async () => {
 };
 
 const getProductsByCategory = async (category) => {
-  const query = "SELECT * FROM product WHERE category = $1";
+  const query = "SELECT * FROM products WHERE category = $1";
 
   const products = await pool.query(query, [category.toLowerCase()]);
 
@@ -25,7 +25,7 @@ const getProductsByCategory = async (category) => {
 
 const getProductByName = async (name) => {
   const query =
-    "SELECT * FROM product WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC";
+    "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC";
 
   const products = await pool.query(query, [name.toLowerCase()]);
 
@@ -37,7 +37,7 @@ const getProductByName = async (name) => {
 };
 
 const getProductById = async (productId) => {
-  const query = "SELECT * FROM product WHERE id = $1";
+  const query = "SELECT * FROM products WHERE id = $1";
 
   const product = await pool.query(query, [productId]);
 
@@ -45,29 +45,29 @@ const getProductById = async (productId) => {
     return product.rows[0];
   }
 
-  throw createError(
-    404,
-    "Product not found with id: " + productId
-  );
+  throw createError(404, "Product not found with id: " + productId);
 };
 
 const createNewProduct = async (data) => {
   const { name, description, price, category } = data;
 
-  if (!name ||!description ||!price ||!category) {
-    throw createError(400, "Please provide all fields: name, description, price, category");
+  if (!name || !description || !price || !category) {
+    throw createError(
+      400,
+      "Please provide all fields: name, description, price, category"
+    );
   }
 
   const insertQuery = {
     query:
-      "INSERT INTO product (name, description, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO products (name, description, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
     values: [name, description, price, category],
   };
 
   const newProduct = await pool.query(insertQuery.query, insertQuery.values);
 
   return newProduct.rows;
-}
+};
 
 const updateProductById = async (data) => {
   const { name, description, price, category, productId } = data;
@@ -81,7 +81,7 @@ const updateProductById = async (data) => {
 
   const updateQuery = {
     query:
-      "UPDATE product SET name = $1, description = $2, price = $3, category = $4 WHERE id = $5 RETURNING *",
+      "UPDATE products SET name = $1, description = $2, price = $3, category = $4 WHERE id = $5 RETURNING *",
     values: [name, description, price, category, productId],
   };
 
@@ -96,21 +96,27 @@ const updateProductById = async (data) => {
     return updatedProduct.rows[0];
   }
 
-  throw createError(404, "Cannot update. Product not found with id: " + productId);
+  throw createError(
+    404,
+    "Cannot update. Product not found with id: " + productId
+  );
 };
 
 const deleteProductById = async (productId) => {
   const productExists = await getProductById(productId);
 
-  if(productExists) {
-      const query = "DELETE FROM product WHERE id = $1 RETURNING *";
+  if (productExists) {
+    const query = "DELETE FROM products WHERE id = $1 RETURNING *";
 
-      const deletedProduct = await pool.query(query, [id]);
+    const deletedProduct = await pool.query(query, [productId]);
 
-      return deletedProduct.rows;
+    return deletedProduct.rows;
   }
 
- throw createError(404, `Cannot Delete. Product with id: ${productId} does not exist`);
+  throw createError(
+    404,
+    `Cannot Delete. Product with id: ${productId} does not exist`
+  );
 };
 
 module.exports = {
@@ -120,5 +126,5 @@ module.exports = {
   getProductsByCategory,
   updateProductById,
   deleteProductById,
-  createNewProduct
+  createNewProduct,
 };

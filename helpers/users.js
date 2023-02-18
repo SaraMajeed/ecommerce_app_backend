@@ -66,9 +66,6 @@ const deleteUserById = async (userId) => {
   const user = await getUserById(userId);
 
   if (user) {
-    // delete the user's cart before deleting the user to avoid foreign key contraint violation
-    const deleteUserCart = await deleteCart(userId);
-
     const userToDelete = await pool.query("DELETE FROM users WHERE id = $1", [
       userId,
     ]);

@@ -10,7 +10,7 @@ module.exports = (app) => {
   cartsRouter.get("/:userId", isLoggedIn, cartsController.getCartByUserId);
 
   cartsRouter.post(
-    "/:cartId/:productId",
+    "/:cartId",
     isLoggedIn,
     cartsController.addProductToCart
   );
@@ -35,7 +35,7 @@ module.exports = (app) => {
     cartsController.getProductsInCart
   );
 
-  cartsRouter.get(
+  cartsRouter.post(
     "/:cartId/checkout",
     isLoggedIn,
     cartsController.checkoutCart
