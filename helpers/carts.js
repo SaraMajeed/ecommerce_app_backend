@@ -123,13 +123,18 @@ const deleteProductInCart = async (data) => {
 };
 
 const totalPrice = (cartItems) => {
-  const total = cartItems
+  try {
+    const total = Number(cartItems
     .reduce((total, item, index) => {
       return total + item.price_per_unit * item.quantity;
     }, 0)
-    .toFixed(2);
+    .toFixed(2));
 
   return total;
+
+  } catch (err) {
+    throw err;
+  } 
 }
 
 const checkoutCart = async (cartId, userId) => {
