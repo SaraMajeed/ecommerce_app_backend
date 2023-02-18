@@ -1,10 +1,6 @@
-const cartsController = require("../controllers/carts");
-
-const { getUserById } = require("../helpers/users");
-
-const { isLoggedIn } = require("../middleware/authMiddleware");
-
 const cartsRouter = require("express").Router();
+const cartsController = require("../controllers/carts");
+const { isLoggedIn } = require("../middleware/authMiddleware");
 
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
@@ -39,19 +35,9 @@ module.exports = (app) => {
     cartsController.getProductsInCart
   );
 
-  // cartsRouter.post("/:cartId/checkout", isLoggedIn, checkoutCartController);
-
-  cartsRouter.param("id", async (req, res, next, id) => {
-    try {
-      let user = await getUserById(id);
-      if (user) {
-        req.user = user.id;
-        next();
-      } else {
-        next(new Error("User does not exist!"));
-      }
-    } catch (err) {
-      next(err);
-    }
-  });
-}
+  cartsRouter.get(
+    "/myCart/checkout",
+    isLoggedIn,
+    cartsController.checkoutCart
+  );
+};

@@ -1,4 +1,7 @@
 const pool = require("../db/db");
+const createError = require("http-errors");
+
+const { createOrder, createOrderItems } = require("./orders");
 
 const getCarts = async () => {
   const carts = await pool.query("SELECT * FROM cart");
@@ -59,7 +62,7 @@ const getCartByUserId = async (userId) => {
 
 const getProductsInCart = async (userId) => {
   const query =
-    "SELECT product.id, product.name, product.description, product.category, carts_products.quantity, SUM(product.price * carts_products.quantity) AS price FROM cart JOIN carts_products ON carts_products.cart_id = cart.id JOIN product ON product.id = carts_products.product_id WHERE user_id = $1 GROUP BY product.id, carts_products.quantity";
+    "SELECT product.id AS product_id, product.name, product.description, product.category, carts_products.quantity, product.price AS price_per_unit FROM cart JOIN carts_products ON carts_products.cart_id = cart.id JOIN product ON product.id = carts_products.product_id WHERE user_id = $1 GROUP BY product.id, carts_products.quantity";
 
   const productsInCart = await pool.query(query, [userId]);
 
@@ -68,31 +71,6 @@ const getProductsInCart = async (userId) => {
   }
 
   return null;
-};
-
-const getSingleProductInCart = async (data) => {
-  try {
-    const { cartId, productId } = data;
-
-    const selectQuery = {
-      query:
-        "SELECT * FROM carts_products WHERE cart_id = $1 AND product_id = $2",
-      values: [cartId, productId],
-    };
-
-    const productInCart = await pool.query(
-      selectQuery.query,
-      selectQuery.values
-    );
-
-    if (productInCart.rows?.length) {
-      return productInCart.rows;
-    }
-
-    return null;
-  } catch (err) {
-    throw err;
-  }
 };
 
 const addProductToCart = async (data) => {
@@ -144,6 +122,31 @@ const deleteProductInCart = async (data) => {
       quantity: ${deletedProduct.rows[0].quantity}`;
 };
 
+const totalPrice = (cartItems) => {
+  const total = cartItems
+    .reduce((total, item, index) => {
+      return total + item.price_per_unit * item.quantity;
+    }, 0)
+    .toFixed(2);
+
+  return total;
+}
+
+const checkoutCart = async (cartId, userId) => {
+  const cartItems = await getProductsInCart(userId);
+
+  // if cart is not empty
+  if (cartItems) {
+    const total = totalPrice(cartItems);
+    const newOrder = await createOrder(total, userId);
+    await createOrderItems(cartItems, newOrder[0].id);
+    await emptyCart(cartId);
+
+    return newOrder[0];
+  }
+  throw createError(404, "Cart is empty");
+};
+
 module.exports = {
   getCarts,
   createCart,
@@ -152,7 +155,8 @@ module.exports = {
   getProductsInCart,
   addProductToCart,
   updateProductsInCart,
-  getSingleProductInCart,
   deleteProductInCart,
   emptyCart,
+  checkoutCart,
+  totalPrice,
 };

@@ -30,21 +30,6 @@ const getProductsInCart = async (req, res, next) => {
   }
 };
 
-// const getSingleProductInCartController = async (req, res) => {
-//   try {
-//     const { cartId, productId } = req.params;
-
-//     const singleProductInCart = await getSingleProductInCart({
-//       cartId,
-//       productId,
-//     });
-//     res.status(200).send(singleProductInCart);
-//   } catch (err) {
-//     res.status(404);
-//     throw err;
-//   }
-// };
-
 const addProductToCart = async (req, res, next) => {
   try {
     const { cartId, productId } = req.params;
@@ -93,7 +78,7 @@ const deleteProductInCart = async (req, res, next) => {
   }
 };
 
-const emptyCart = async (req, res) => {
+const emptyCart = async (req, res, next) => {
   try {
     const deletedProducts = await cartHelpers.emptyCart(req.params.cartId);
 
@@ -103,6 +88,23 @@ const emptyCart = async (req, res) => {
   }
 };
 
+const checkoutCart = async (req, res, next) => {
+  try {
+    const checkoutCart = await cartHelpers.checkoutCart(req.body.cartId, req.user);
+
+    res.status(201).json({ 
+      message: "Successfully submitted order",
+      orderDetails: {
+        orderID: checkoutCart.id,
+        date: checkoutCart.date,
+        total_price: "£" + checkoutCart.total_price
+      }
+     });
+  } catch (err) {
+    next(err); 
+  }
+}
+
 module.exports = {
   getCarts,
   addProductToCart,
@@ -111,5 +113,5 @@ module.exports = {
   updateProductsInCart,
   deleteProductInCart,
   emptyCart,
-  // getSingleProductInCartController,
+  checkoutCart,
 };

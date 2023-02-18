@@ -1,5 +1,4 @@
 const authHelpers = require("../helpers/users");
-const createError = require("http-errors");
 
 const registerUser = async (req, res, next) => {
   try {
@@ -29,8 +28,8 @@ const logoutUser = async (req, res, next) => {
   req.logout(function (err) {
     if (err) return next(err);
     req.session.destroy();
+    res.clearCookie("connect.sid");
     res.json({ message: "Logged Out Successfully" });
-    // res.redirect("/auth/login");
   });
 };
 

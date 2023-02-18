@@ -81,10 +81,37 @@ const deleteOrderItems = async (orderId) => {
   }
 };
 
+const createOrder = async (total, userId) => {
+  const insertQuery = {
+    query:
+      "INSERT INTO orders (total_price, user_id) VALUES ($1, $2) RETURNING *",
+    values: [total, userId],
+  };
+
+  const newOrder = await pool.query(insertQuery.query, insertQuery.values);
+
+  return newOrder.rows;
+}
+
+const createOrderItems = async (cartItems, orderId) => {
+  const insertOrderItemsQuery =
+    "INSERT INTO products_orders (orders_id, product_id, quantity) VALUES ($1, $2, $3)";
+
+  for (item in cartItems) {
+    const insertOrderItems = await pool.query(insertOrderItemsQuery, [
+      orderId,
+      cartItems[item].product_id,
+      cartItems[item].quantity,
+    ]);
+  }
+};
+
 module.exports = {
   getAllOrders,
   getUserOrders,
   getOrdersById,
   getOrderItemsById,
   deleteOrder,
+  createOrder,
+  createOrderItems,
 };
