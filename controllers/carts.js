@@ -90,7 +90,7 @@ const emptyCart = async (req, res, next) => {
 
 const checkoutCart = async (req, res, next) => {
   try {
-    const checkoutCart = await cartHelpers.checkoutCart(req.body.cartId, req.user);
+    const checkoutCart = await cartHelpers.checkoutCart(req.params.cartId, req.user);
 
     res.status(201).json({ 
       message: "Successfully submitted order",

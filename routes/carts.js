@@ -36,7 +36,7 @@ module.exports = (app) => {
   );
 
   cartsRouter.get(
-    "/myCart/checkout",
+    "/:cartId/checkout",
     isLoggedIn,
     cartsController.checkoutCart
   );
