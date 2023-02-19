@@ -77,14 +77,14 @@ const deleteUserById = async (userId) => {
 
 const createUser = async (data) => {
   try {
-    const { username, email, password } = data;
+    const { username, email, password, admin } = data;
 
     const hashedPassword = await encryptPassword(password);
 
     const insert = {
       query:
-        "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *",
-      values: [username, hashedPassword, email],
+        "INSERT INTO users (username, password, email, admin) VALUES ($1, $2, $3, COALESCE($4, false)) RETURNING *",
+      values: [username, hashedPassword, email, admin],
     };
 
     // Insert user data into users table
@@ -101,7 +101,7 @@ const createUser = async (data) => {
 
 const registerUser = async (data) => {
 
-  const { username, email, password } = data;
+  const { username, email, password, admin } = data;
 
   if(!username || !email || !password) {
     throw createError(400, "Please enter all fields: username, email and password");
@@ -113,7 +113,7 @@ const registerUser = async (data) => {
     throw createError(409, "Email already in use");
   }
 
-  return await createUser({ username, email, password });
+  return await createUser({ username, email, password, admin });
  
 };
 

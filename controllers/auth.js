@@ -2,9 +2,9 @@ const authHelpers = require("../helpers/users");
 
 const registerUser = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, admin } = req.body;
 
-    const newUser = await authHelpers.registerUser({ username, email, password });
+    const newUser = await authHelpers.registerUser({ username, email, password, admin });
 
     res.status(201).json({ message: "User created successfully" });
   } catch (err) {

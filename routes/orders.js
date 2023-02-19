@@ -2,12 +2,12 @@ const ordersRouter = require("express").Router();
 
 const ordersController = require("../controllers/orders");
 
-const { isLoggedIn } = require("../middleware/authMiddleware");
+const { isLoggedIn, isAdmin } = require("../middleware/authMiddleware");
 
 module.exports = (app) => {
   app.use("/orders", ordersRouter);
 
-  ordersRouter.get("/", ordersController.getAllOrders); // admin only
+  ordersRouter.get("/", isLoggedIn, isAdmin, ordersController.getAllOrders);
 
   ordersRouter.get("/:userId", isLoggedIn, ordersController.getUserOrders);
 
@@ -17,7 +17,7 @@ module.exports = (app) => {
     ordersController.getOrdersById
   );
 
-  ordersRouter.delete("/:userId/:orderId", ordersController.deleteOrder); //admin only
+  ordersRouter.delete("/:userId/:orderId", isLoggedIn, isAdmin, ordersController.deleteOrder); 
 
   ordersRouter.get(
     "/:userId/:orderId/details",

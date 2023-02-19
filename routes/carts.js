@@ -1,11 +1,11 @@
 const cartsRouter = require("express").Router();
 const cartsController = require("../controllers/carts");
-const { isLoggedIn } = require("../middleware/authMiddleware");
+const { isLoggedIn, isAdmin } = require("../middleware/authMiddleware");
 
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
 
-  cartsRouter.get("/", cartsController.getCarts); //admin only
+  cartsRouter.get("/", isLoggedIn, isAdmin, cartsController.getCarts); //admin only
 
   cartsRouter.get("/:userId", isLoggedIn, cartsController.getCartByUserId);
 
