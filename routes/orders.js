@@ -9,18 +9,18 @@ module.exports = (app) => {
 
   ordersRouter.get("/", isLoggedIn, isAdmin, ordersController.getAllOrders);
 
-  ordersRouter.get("/:userId", isLoggedIn, ordersController.getUserOrders);
+  ordersRouter.get("/myOrders", isLoggedIn, ordersController.getUserOrders);
 
   ordersRouter.get(
-    "/:userId/:orderId",
+    "/myOrders/:orderId",
     isLoggedIn,
     ordersController.getOrdersById
   );
 
-  ordersRouter.delete("/:userId/:orderId", isLoggedIn, isAdmin, ordersController.deleteOrder); 
+  ordersRouter.delete("/myOrders/:orderId", isLoggedIn, isAdmin, ordersController.deleteOrder); 
 
   ordersRouter.get(
-    "/:userId/:orderId/details",
+    "/myOrders/:orderId/details",
     isLoggedIn,
     ordersController.getOrderItemsById
   );

@@ -11,7 +11,7 @@ const getAllUsers = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
   try {
-    const user = await userHelpers.getUserById(req.params.id);
+    const user = await userHelpers.getUserById(req.user.id);
     res.status(200).send(user);
   } catch (err) {
     next(err);
@@ -26,7 +26,7 @@ const updateUserById = async (req, res, next) => {
       username,
       password,
       email,
-      userId: req.user,
+      userId: req.user.id,
     });
 
     res.status(200).json({
@@ -38,7 +38,7 @@ const updateUserById = async (req, res, next) => {
 
 const deleteUserById = async (req, res, next) => {
   try {
-    const deletedUser = await userHelpers.deleteUserById(req.user);
+    const deletedUser = await userHelpers.deleteUserById(req.user.id);
 
     res.status(200).json({ 
       message: "Successfully deleted user",

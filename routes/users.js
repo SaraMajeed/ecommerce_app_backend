@@ -10,10 +10,10 @@ module.exports = (app) => {
 
   userRouter.get("/", isLoggedIn, isAdmin, usersController.getAllUsers);
 
-  userRouter.get("/:id", isLoggedIn, usersController.getUserById);
+  userRouter.get("/myAccount", isLoggedIn, usersController.getUserById);
 
-  userRouter.put("/:id", isLoggedIn, usersController.updateUserById);
+  userRouter.put("/myAccount", isLoggedIn, usersController.updateUserById);
 
-  userRouter.delete("/:id", isLoggedIn, usersController.deleteUserById);
+  userRouter.delete("/myAccount", isLoggedIn, usersController.deleteUserById);
 
 };

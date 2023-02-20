@@ -7,36 +7,36 @@ module.exports = (app) => {
 
   cartsRouter.get("/", isLoggedIn, isAdmin, cartsController.getCarts); //admin only
 
-  cartsRouter.get("/:userId", isLoggedIn, cartsController.getCartByUserId);
+  cartsRouter.get("/myCart", isLoggedIn, cartsController.getCartByUserId);
 
   cartsRouter.post(
-    "/:cartId",
+    "/myCart",
     isLoggedIn,
     cartsController.addProductToCart
   );
 
   cartsRouter.put(
-    "/:cartId/:productId",
+    "/myCart/:productId",
     isLoggedIn,
     cartsController.updateProductsInCart
   );
 
-  cartsRouter.delete("/:cartId", isLoggedIn, cartsController.emptyCart);
+  cartsRouter.delete("/myCart", isLoggedIn, cartsController.emptyCart);
 
   cartsRouter.delete(
-    "/:cartId/:productId",
+    "/myCart/:productId",
     isLoggedIn,
     cartsController.deleteProductInCart
   );
 
   cartsRouter.get(
-    "/:userId/products",
+    "/myCart/products",
     isLoggedIn,
     cartsController.getProductsInCart
   );
 
   cartsRouter.post(
-    "/:cartId/checkout",
+    "/myCart/checkout",
     isLoggedIn,
     cartsController.checkoutCart
   );

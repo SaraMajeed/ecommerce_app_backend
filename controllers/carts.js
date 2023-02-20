@@ -12,7 +12,7 @@ const getCarts = async (req, res, next) => {
 
 const getCartByUserId = async (req, res, next) => {
   try {
-    const cart = await cartHelpers.getCartByUserId(req.params.userId);
+    const cart = await cartHelpers.getCartByUserId(req.user.id);
     res.status(200).send(cart);
   } catch (err) {
     next(err);
@@ -21,9 +21,7 @@ const getCartByUserId = async (req, res, next) => {
 
 const getProductsInCart = async (req, res, next) => {
   try {
-    const productsInCart = await cartHelpers.getProductsInCart(
-      req.params.userId
-    );
+    const productsInCart = await cartHelpers.getProductsInCart(req.user.id);
     res.status(200).send(productsInCart);
   } catch (err) {
     next(err);
@@ -32,7 +30,7 @@ const getProductsInCart = async (req, res, next) => {
 
 const addProductToCart = async (req, res, next) => {
   try {
-    const { cartId } = req.params;
+    const { cartId } = req.user;
     const { productId, quantity } = req.body;
 
     const newProductInCart = await cartHelpers.addProductToCart({
@@ -49,13 +47,10 @@ const addProductToCart = async (req, res, next) => {
 
 const updateProductsInCart = async (req, res, next) => {
   try {
-    const { cartId, productId } = req.params;
-    const { quantity } = req.body;
-
     const updatedProductsInCart = await cartHelpers.updateProductsInCart({
-      cartId,
-      productId,
-      quantity,
+      cartId: req.user.cartId,
+      productId: req.params.productId,
+      quantity: req.body.quantity,
     });
 
     res.status(200).send(updatedProductsInCart);
@@ -66,11 +61,9 @@ const updateProductsInCart = async (req, res, next) => {
 
 const deleteProductInCart = async (req, res, next) => {
   try {
-    const { cartId, productId } = req.params;
-
     const deletedProductInCart = await cartHelpers.deleteProductInCart({
-      cartId,
-      productId,
+      cartId:req.user.cartId,
+      productId: req.params.productId,
     });
     res.status(204).send(deletedProductInCart);
   } catch (err) {
@@ -80,7 +73,7 @@ const deleteProductInCart = async (req, res, next) => {
 
 const emptyCart = async (req, res, next) => {
   try {
-    const deletedProducts = await cartHelpers.emptyCart(req.params.cartId);
+    const deletedProducts = await cartHelpers.emptyCart(req.user.cartId);
 
     res.status(204).send(deletedProducts);
   } catch (err) {
@@ -90,7 +83,7 @@ const emptyCart = async (req, res, next) => {
 
 const checkoutCart = async (req, res, next) => {
   try {
-    const checkoutCart = await cartHelpers.checkoutCart(req.params.cartId, req.user);
+    const checkoutCart = await cartHelpers.checkoutCart(req.user.cartId, req.user.id);
 
     res.status(201).json({ 
       message: "Successfully submitted order",

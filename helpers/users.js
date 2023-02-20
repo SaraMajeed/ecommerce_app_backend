@@ -1,7 +1,7 @@
 const pool = require("../db/db");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
-const { createCart, deleteCart } = require("../helpers/carts");
+const { createCart} = require("../helpers/carts");
 
 const encryptPassword = async (password) => {
   //generate salt
