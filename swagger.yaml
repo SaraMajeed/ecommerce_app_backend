@@ -163,7 +163,15 @@ paths:
         '200':
           description: json object of all users stored in the database
         '401':
-          description: Authorisation Error
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not authorised to view or edit this content!"
+                    }
         '500':
           description: Internal Server Error
           content:
@@ -176,19 +184,11 @@ paths:
                     }          
       tags:
         - Users
-  /users/{userId}:
+  /users/myAccount:
     get:
       summary: Get user by ID
       description: Get details for a single user by ID
       operationId: getUserById
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to return
-          required: true
-          schema:
-            type: integer
-            format: int64
       responses:
         '200':
           description: Successfully retrieved user details
@@ -201,7 +201,8 @@ paths:
                         "id": 65,
                         "username": "exampleUser",
                         "password": "$2b$10$DHSRSxGoknpqP.x7hVv53OhgQ920Mfgs8Flm3QvHxVWlVoTng34sK",
-                        "email": "exampleUser@example.com"
+                        "email": "exampleUser@example.com",
+                        "admin": false
                     }
         '401':
           description: Authorisation Error
@@ -229,14 +230,6 @@ paths:
       summary: Delete user
       description: Delete an existing user from the database
       operationId: deleteUser
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to return
-          required: true
-          schema:
-            type: integer
-            format: int64
       responses:
         '200':
           description: Successfully deleted user
@@ -291,14 +284,6 @@ paths:
               username: exampleUser
               email: exampleUser@gmail.com
               password: myNewPassword
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to return
-          required: true
-          schema:
-            type: integer
-            format: int64
       responses:
         '200':
           description: Successfully updated user
@@ -416,7 +401,7 @@ paths:
             example:
               name: productName
               description: this would be a description of the product
-              price: 25.50
+              price: 25.5
               category: productCategory
       responses:
         '201':
@@ -444,6 +429,21 @@ paths:
                   value: |-
                     {
                         "message": "Please provide all fields: name, description, price, category"
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised - Not Admin:
+                  value: |-
+                    {
+                        "message": "You are not authorised to view or edit this content!"
+                    } 
+                401 Unauthorised - Not Logged In:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
                     }
         '500':
           description: Internal Server Error
@@ -558,6 +558,31 @@ paths:
                     {
                         "message": "Please provide all fields: name, description, price, category"
                     }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised - Not Admin:
+                  value: |-
+                    {
+                        "message": "You are not authorised to view or edit this content!"
+                    }    
+                401 Unauthorised - Not Logged In:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }    
+        '404':
+          description: Product Not Found
+          content:
+            application/json:
+              examples:
+                404 Not Found:
+                  value: |-
+                    {
+                        "message": "Product not found with id: 4"
+                    }
         '500':
           description: Internal Server Error
           content:
@@ -583,12 +608,386 @@ paths:
             type: integer
             format: int64
       responses:
+        '200':
+          description: Successfully deleted product
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully deleted product",
+                        "deletedProduct": {
+                            "name": "productName",
+                            "description": "productDescription",
+                            "price": "34.99",
+                            "category": "productCategory"
+                        }
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised - Not Admin:
+                  value: |-
+                    {
+                        "message": "You are not authorised to view or edit this content!"
+                    }
+                401 Unauthorised - Not Logged In:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '404':
+          description: Product Not Found
+          content:
+            application/json:
+              examples:
+                404 Not Found:
+                  value: |-
+                    {
+                        "message": "Product not found with id: 4"
+                    }            
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Products
+  /carts:
+    get:
+      summary: Get all carts (ADMIN)
+      description: Gets all carts stored in the database
+      operationId: getCarts
+      responses:
+        '200':
+          description: Successfully retrieved all carts
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    [
+                        {
+                            "id": 11,
+                            "user_id": 12
+                        },
+                        {
+                            "id": 12,
+                            "user_id": 13
+                        },
+                        {
+                            "id": 13,
+                            "user_id": 14
+                        }
+                    ]
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised - Not Admin:
+                  value: |-
+                    {
+                        "message": "You are not authorised to view or edit this content!"
+                    }
+                401 Unauthorised - Not Logged In:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }            
+      tags:
+        - Carts
+  /carts/myCart:
+    get:
+      tags:
+        - Carts
+      summary: Get users cart
+      description: Get a list of products in a users cart
+      operationId: getProductsInCart
+      responses:
+        '200':
+          description: Successfully retrieved products in a user's cart
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    [
+                        {
+                            "product_id": 5,
+                            "name": "productName",
+                            "description": "productDescription",
+                            "category": "productCategory",
+                            "quantity": 2,
+                            "price_per_unit": "34.99"
+                        },
+                        {
+                            "product_id": 6,
+                            "name": "productName2",
+                            "description": "productDescription2",
+                            "category": "productCagetory2",
+                            "quantity": 1,
+                            "price_per_unit": "12.99"
+                        }
+                    ]
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+    post:
+      summary: Add product to cart
+      description: Add a new product to a users cart
+      operationId: addProductToCart
+      requestBody:
+        description: New Cart Item
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItems'
+            example:
+              productId: 3
+              quantity: 2
+      responses:
+        '201':
+          description: Successfully added product to cart
+          content:
+            application/json:
+              examples:
+                201 Created:
+                  value: |-
+                    {
+                        "message": "Successfully added product to cart",
+                        "newCartItem": {
+                            "productId": 5,
+                            "quantity": 2
+                        }
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Carts
+    delete:
+      summary: Empty cart
+      description: Empty cart of all products
+      operationId: emptyCart
+      responses:
+        '200':
+          description: Successfully emptied cart
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully emptied cart"
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }            
+      tags:
+        - Carts
+  /carts/myCart/{productId}:
+    put:
+      summary: Update product in cart
+      description: Update the quantity of a product located in a users cart
+      operationId: updateProductInCart
+      parameters:
+        - name: productId
+          in: path
+          description: ID of cart product to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: New quantity
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItems'
+            example:
+              quantity: 3
+      responses:
+        '200':
+          description: Successfully updated product in cart
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully updated product in cart",
+                        "updatedCartItem": {
+                            "productId": 5,
+                            "quantity": 1
+                        }
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }            
+      tags:
+        - Carts
+    delete:
+      summary: Delete product in cart
+      description: Delete a single product in users cart
+      operationId: deleteProductInCart
+      parameters:
+        - name: productId
+          in: path
+          description: ID of cart product to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully deleted product from cart
+          content:
+            application/json:
+              examples:
+                200 OK:
+                  value: |-
+                    {
+                        "message": "Successfully deleted product from cart",
+                        "deletedCartItem": {
+                            "productId": 5,
+                            "quantity": 2
+                        }
+                    }
+        '401':
+          description: Authorisation error
+          content:
+            application/json:
+              examples:
+                401 Unauthorised:
+                  value: |-
+                    {
+                        "message": "You are not logged in. Please log in or register to continue."
+                    }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                500 Internal Server Error:
+                  value: |-
+                    {
+                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
+                    }
+      tags:
+        - Carts
+  /carts/myCart/checkout:
+    post:
+      summary: Checkout cart
+      description: >-
+        Creates an order containing all the items in users cart, then empties
+        cart
+      operationId: checkoutCart
+      responses:
         default:
           description: Default error sample response
       tags:
-        - Products
+        - Carts
+  /orders:
+    get:
+      summary: Get all orders
+      description: Get all orders stored in the database
+      operationId: getAllOrders
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Orders
 components:
-  schemas: 
+  schemas:
     Users:
       type: object
       properties:
@@ -646,7 +1045,7 @@ components:
     OrderItems:
       type: object
       properties:
-        order_id: 
+        order_id:
           $ref: '#/components/schemas/Orders'
         product_id:
           $ref: '#/components/schemas/Products'
@@ -657,7 +1056,7 @@ components:
     Carts:
       type: object
       properties:
-        id: 
+        id:
           type: integer
           format: int64
           example: 3
@@ -674,6 +1073,3 @@ components:
           type: integer
           format: int64
           example: 3
-    
-        
-        
