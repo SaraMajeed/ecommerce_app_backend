@@ -1,13 +1,17 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { loginUser } = require("../helpers/users");
+const { getCartByUserId } = require("../helpers/carts");
 
 module.exports = (app) => {
   // Initialize passport
   app.use(passport.initialize());
   app.use(passport.session());
 
-  passport.serializeUser((user, done) => {
+  passport.serializeUser(async (user, done) => {
+    // add cart id to user object
+    const userCart = await getCartByUserId(user.id);
+    user.cartId = userCart[0].id
     done(null, user);
   });
 
