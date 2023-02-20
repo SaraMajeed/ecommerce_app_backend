@@ -28,18 +28,6 @@ const emptyCart = async (cartId) => {
   return deletedProduct.rows;
 };
 
-const deleteCart = async (userId) => {
-  try {
-
-    const query = "DELETE FROM carts WHERE user_id = $1 RETURNING *";
-    const deletedCart = await pool.query(query, [userId]);
-
-    return `Successfully deleted cart: ${deletedCart}`;
-  } catch (err) {
-    throw err;
-  }
-};
-
 const getCartByUserId = async (userId) => {
   const selectQuery = {
     query: "SELECT * FROM carts WHERE user_id = $1",
@@ -149,7 +137,6 @@ const checkoutCart = async (cartId, userId) => {
 module.exports = {
   getCarts,
   createCart,
-  deleteCart,
   getCartByUserId,
   getProductsInCart,
   addProductToCart,
