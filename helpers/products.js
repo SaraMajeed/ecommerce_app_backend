@@ -95,11 +95,6 @@ const updateProductById = async (data) => {
     );
     return updatedProduct.rows[0];
   }
-
-  throw createError(
-    404,
-    "Cannot update. Product not found with id: " + productId
-  );
 };
 
 const deleteProductById = async (productId) => {
@@ -110,13 +105,8 @@ const deleteProductById = async (productId) => {
 
     const deletedProduct = await pool.query(query, [productId]);
 
-    return deletedProduct.rows;
+    return deletedProduct.rows[0];
   }
-
-  throw createError(
-    404,
-    `Cannot Delete. Product with id: ${productId} does not exist`
-  );
 };
 
 module.exports = {

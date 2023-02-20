@@ -81,13 +81,20 @@ const updateProductById = async (req, res, next) => {
   }
 };
 
-//TODO: fix constraint violation error
 const deleteProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
     const response = await productHelpers.deleteProductById(productId);
 
-    res.status(200).send(response);
+    res.status(200).json({
+      message: "Successfully deleted product",
+      deletedProduct: {
+        name: response.name,
+        description: response.description,
+        price: response.price,
+        category: response.category,
+      }, 
+    });
   } catch (err) {
     next(err);
   }

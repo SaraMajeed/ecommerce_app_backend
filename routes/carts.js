@@ -5,9 +5,15 @@ const { isLoggedIn, isAdmin } = require("../middleware/authMiddleware");
 module.exports = (app) => {
   app.use("/carts", cartsRouter);
 
-  cartsRouter.get("/", isLoggedIn, isAdmin, cartsController.getCarts); //admin only
+  cartsRouter.get("/", isLoggedIn, isAdmin, cartsController.getCarts);
 
-  cartsRouter.get("/myCart", isLoggedIn, cartsController.getCartByUserId);
+   cartsRouter.get(
+     "/myCart",
+     isLoggedIn,
+     cartsController.getProductsInCart
+   );
+
+  // cartsRouter.get("/myCart", isLoggedIn, cartsController.getCartByUserId);
 
   cartsRouter.post(
     "/myCart",
@@ -15,24 +21,18 @@ module.exports = (app) => {
     cartsController.addProductToCart
   );
 
+  cartsRouter.delete("/myCart", isLoggedIn, cartsController.emptyCart);
+
   cartsRouter.put(
     "/myCart/:productId",
     isLoggedIn,
-    cartsController.updateProductsInCart
+    cartsController.updateProductInCart
   );
-
-  cartsRouter.delete("/myCart", isLoggedIn, cartsController.emptyCart);
 
   cartsRouter.delete(
     "/myCart/:productId",
     isLoggedIn,
     cartsController.deleteProductInCart
-  );
-
-  cartsRouter.get(
-    "/myCart/products",
-    isLoggedIn,
-    cartsController.getProductsInCart
   );
 
   cartsRouter.post(

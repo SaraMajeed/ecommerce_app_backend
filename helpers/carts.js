@@ -81,7 +81,7 @@ const updateProductsInCart = async (data) => {
 
   const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
 
-  return updatedCart.rows;
+  return updatedCart.rows[0];
 };
 
 const deleteProductInCart = async (data) => {
@@ -98,9 +98,7 @@ const deleteProductInCart = async (data) => {
     deleteQuery.values
   );
 
-  return `Sucessfully deleted: 
-      product: ${deletedProduct.rows[0].product_id}
-      quantity: ${deletedProduct.rows[0].quantity}`;
+  return deletedProduct.rows[0];
 };
 
 const totalPrice = (cartItems) => {

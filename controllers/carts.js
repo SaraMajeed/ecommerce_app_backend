@@ -10,15 +10,6 @@ const getCarts = async (req, res, next) => {
   }
 };
 
-const getCartByUserId = async (req, res, next) => {
-  try {
-    const cart = await cartHelpers.getCartByUserId(req.user.id);
-    res.status(200).send(cart);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const getProductsInCart = async (req, res, next) => {
   try {
     const productsInCart = await cartHelpers.getProductsInCart(req.user.id);
@@ -39,21 +30,33 @@ const addProductToCart = async (req, res, next) => {
       quantity,
     });
 
-    res.status(201).send(newProductInCart);
+    res.status(201).json({
+      message: "Successfully added product to cart",
+      newCartItem: {
+        productId: newProductInCart.product_id,
+        quantity: newProductInCart.quantity,
+      },
+    });
   } catch (err) {
     next(err);
   }
 };
 
-const updateProductsInCart = async (req, res, next) => {
+const updateProductInCart = async (req, res, next) => {
   try {
-    const updatedProductsInCart = await cartHelpers.updateProductsInCart({
+    const updatedProductInCart = await cartHelpers.updateProductsInCart({
       cartId: req.user.cartId,
       productId: req.params.productId,
       quantity: req.body.quantity,
     });
 
-    res.status(200).send(updatedProductsInCart);
+    res.status(200).json({
+      message: "Successfully updated product in cart",
+      updatedCartItem: {
+        productId: updatedProductInCart.product_id,
+        quantity: updatedProductInCart.quantity,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -65,7 +68,13 @@ const deleteProductInCart = async (req, res, next) => {
       cartId:req.user.cartId,
       productId: req.params.productId,
     });
-    res.status(204).send(deletedProductInCart);
+    res.status(200).json({
+      message: "Successfully deleted product from cart",
+      deletedCartItem: {
+        productId: deletedProductInCart.product_id,
+        quantity: deletedProductInCart.quantity,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -73,9 +82,9 @@ const deleteProductInCart = async (req, res, next) => {
 
 const emptyCart = async (req, res, next) => {
   try {
-    const deletedProducts = await cartHelpers.emptyCart(req.user.cartId);
+    await cartHelpers.emptyCart(req.user.cartId);
 
-    res.status(204).send(deletedProducts);
+    res.status(200).json({ message: "Successfully emptied cart" });
   } catch (err) {
     next(err);
   }
@@ -101,9 +110,8 @@ const checkoutCart = async (req, res, next) => {
 module.exports = {
   getCarts,
   addProductToCart,
-  getCartByUserId,
   getProductsInCart,
-  updateProductsInCart,
+  updateProductInCart,
   deleteProductInCart,
   emptyCart,
   checkoutCart,
