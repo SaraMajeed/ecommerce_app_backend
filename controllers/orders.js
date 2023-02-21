@@ -19,9 +19,9 @@ const getUserOrders = async (req, res, next) => {
   }
 };
 
-const getOrdersById = async (req, res, next) => {
+const getOrderById = async (req, res, next) => {
   try {
-    const order = await orderHelpers.getOrdersById(
+    const order = await orderHelpers.getOrderById(
       req.params.orderId,
       req.user.id
     );
@@ -49,7 +49,15 @@ const deleteOrder = async (req, res, next) => {
       req.params.orderId,
       req.user.id
     );
-    res.status(200).send(deletedOrder);
+    res.status(200).json({
+      message: "Successfully deleted order",
+      deletedOrder: {
+        userId: deletedOrder.user_id,
+        orderId: deletedOrder.id,
+        date: deletedOrder.date,
+        totalPrice: deletedOrder.total_price
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -58,7 +66,7 @@ const deleteOrder = async (req, res, next) => {
 module.exports = {
   getAllOrders,
   getUserOrders,
-  getOrdersById,
+  getOrderById,
   getOrderItemsById,
   deleteOrder,
 };
