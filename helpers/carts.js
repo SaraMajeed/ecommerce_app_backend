@@ -4,7 +4,7 @@ const createError = require("http-errors");
 const { createOrder, createOrderItems } = require("./orders");
 
 const getCarts = async () => {
-  const carts = await pool.query("SELECT * FROM carts");
+  const carts = await pool.query("SELECT id as cart_id, user_id FROM carts");
   if (carts.rows?.length) {
     return carts.rows;
   }
@@ -30,7 +30,7 @@ const emptyCart = async (cartId) => {
 
 const getCartByUserId = async (userId) => {
   const selectQuery = {
-    query: "SELECT * FROM carts WHERE user_id = $1",
+    query: "SELECT id as cart_id, user_id FROM carts WHERE user_id = $1",
     values: [userId],
   };
 

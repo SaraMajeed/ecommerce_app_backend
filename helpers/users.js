@@ -13,7 +13,9 @@ const encryptPassword = async (password) => {
 };
 
 const getAllUsers = async () => {
-  const users = await pool.query("SELECT * FROM users");
+  const users = await pool.query(
+    "SELECT id, username, email, admin FROM users"
+  );
 
   if (users.rows?.length) {
     return users.rows;
@@ -23,7 +25,7 @@ const getAllUsers = async () => {
 };
 
 const getUserById = async (userId) => {
-  const user = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
+  const user = await pool.query("SELECT id, username, email, admin FROM users WHERE id = $1", [userId]);
 
   if (user.rows?.length) {
     return user.rows[0];

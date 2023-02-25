@@ -1,6 +1,6 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const { loginUser } = require("../helpers/users");
+const { loginUser, getUserById } = require("../helpers/users");
 const { getCartByUserId } = require("../helpers/carts");
 
 module.exports = (app) => {
@@ -9,14 +9,19 @@ module.exports = (app) => {
   app.use(passport.session());
 
   passport.serializeUser(async (user, done) => {
-    // add cart id to user object
-    const userCart = await getCartByUserId(user.id);
-    user.cartId = userCart[0].id
-    done(null, user);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((id, done) => {
-    done(null, id);
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await getUserById(id);
+      const userCart = await getCartByUserId(id);
+      user.cart_id = userCart[0].id;
+      done(null, user);
+
+    } catch (err) {
+      done (err)
+    }
   });
 
   // Configure local strategy to be use for local login

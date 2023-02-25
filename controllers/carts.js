@@ -45,7 +45,7 @@ const addProductToCart = async (req, res, next) => {
 const updateProductInCart = async (req, res, next) => {
   try {
     const updatedProductInCart = await cartHelpers.updateProductsInCart({
-      cartId: req.user.cartId,
+      cartId: req.user.cart_id,
       productId: req.params.productId,
       quantity: req.body.quantity,
     });
@@ -65,7 +65,7 @@ const updateProductInCart = async (req, res, next) => {
 const deleteProductInCart = async (req, res, next) => {
   try {
     const deletedProductInCart = await cartHelpers.deleteProductInCart({
-      cartId:req.user.cartId,
+      cartId: req.user.cart_id,
       productId: req.params.productId,
     });
     res.status(200).json({
@@ -82,7 +82,7 @@ const deleteProductInCart = async (req, res, next) => {
 
 const emptyCart = async (req, res, next) => {
   try {
-    await cartHelpers.emptyCart(req.user.cartId);
+    await cartHelpers.emptyCart(req.user.cart_id);
 
     res.status(200).json({ message: "Successfully emptied cart" });
   } catch (err) {
@@ -92,20 +92,23 @@ const emptyCart = async (req, res, next) => {
 
 const checkoutCart = async (req, res, next) => {
   try {
-    const checkoutCart = await cartHelpers.checkoutCart(req.user.cartId, req.user.id);
+    const checkoutCart = await cartHelpers.checkoutCart(
+      req.user.cart_id,
+      req.user.id
+    );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Successfully submitted order",
       orderDetails: {
         orderID: checkoutCart.id,
         date: checkoutCart.date,
-        total_price: "£" + checkoutCart.total_price
-      }
-     });
+        total_price: "£" + checkoutCart.total_price,
+      },
+    });
   } catch (err) {
-    next(err); 
+    next(err);
   }
-}
+};
 
 module.exports = {
   getCarts,
