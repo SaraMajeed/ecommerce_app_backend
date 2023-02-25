@@ -207,7 +207,6 @@ paths:
                     {
                         "id": 65,
                         "username": "exampleUser",
-                        "password": "$2b$10$DHSRSxGoknpqP.x7hVv53OhgQ920Mfgs8Flm3QvHxVWlVoTng34sK",
                         "email": "exampleUser@example.com",
                         "admin": false
                     }
@@ -683,15 +682,15 @@ paths:
                   value: |-
                     [
                         {
-                            "id": 11,
+                            "cart_id": 11,
                             "user_id": 12
                         },
                         {
-                            "id": 12,
+                            "cart_id": 12,
                             "user_id": 13
                         },
                         {
-                            "id": 13,
+                            "cart_id": 13,
                             "user_id": 14
                         }
                     ]
