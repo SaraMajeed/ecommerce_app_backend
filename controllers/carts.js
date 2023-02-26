@@ -21,11 +21,11 @@ const getProductsInCart = async (req, res, next) => {
 
 const addProductToCart = async (req, res, next) => {
   try {
-    const { cartId } = req.user;
+    const { cart_id } = req.user;
     const { productId, quantity } = req.body;
 
     const newProductInCart = await cartHelpers.addProductToCart({
-      cartId,
+      cart_id,
       productId,
       quantity,
     });

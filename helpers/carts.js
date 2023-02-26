@@ -102,24 +102,20 @@ const deleteProductInCart = async (data) => {
 };
 
 const totalPrice = (cartItems) => {
-  try {
-    const total = Number(
-      cartItems
-        .reduce((total, item, index) => {
-          return total + item.price_per_unit * item.quantity;
-        }, 0)
-        .toFixed(2)
-    );
+  const total = Number(
+    cartItems
+      .reduce((total, item, index) => {
+        return total + item.price_per_unit * item.quantity;
+      }, 0)
+      .toFixed(2)
+  );
 
-    return total;
-  } catch (err) {
-    throw err;
-  }
+  return total;
 };
 
 const checkoutCart = async (cartId, userId) => {
   const cartItems = await getProductsInCart(userId);
-  
+
   // if cart is not empty
   if (cartItems) {
     const total = totalPrice(cartItems);

@@ -1,6 +1,7 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const { loginUser, getUserById } = require("../helpers/users");
+const { getUserById } = require("../helpers/users");
+const { loginUser } = require("../helpers/auth");
 const { getCartByUserId } = require("../helpers/carts");
 
 module.exports = (app) => {
@@ -8,10 +9,16 @@ module.exports = (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
+
+  //determines what data from the user object should be stored in the session
+  // stored as an object - req.session.passport.user
   passport.serializeUser(async (user, done) => {
     done(null, user.id);
   });
 
+
+  // loads additional user info on every request 
+  // data is attached to req.user object
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await getUserById(id);
@@ -20,7 +27,7 @@ module.exports = (app) => {
       done(null, user);
 
     } catch (err) {
-      done (err)
+      done (err);
     }
   });
 

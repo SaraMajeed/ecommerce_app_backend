@@ -22,7 +22,7 @@ const updateUserById = async (req, res, next) => {
   try {
     const { username, password, email } = req.body;
 
-    const updatedUser = await userHelpers.updateUserById({
+    await userHelpers.updateUserById({
       username,
       password,
       email,
