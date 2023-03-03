@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: E-Commerce App REST API
   version: 1.0.0
-  description: E-Commerce App REST API using Node.js, Express, PostgresSQL
+  description: E-Commerce App REST API using Node.js, Express, PostgresSQL. Users can perform various operations such as registering and logging into an account, browsing products, adding products to cart and viewing/placing orders. Further operations can be performed by those with admin permissions, such as retrieving details for all users, carts and orders and creating/updating/deleting products. 
 externalDocs:
   description: GitHub Repository
   url: https://github.com/SaraMajeed/ecommerce_app_backend
@@ -1062,73 +1062,7 @@ paths:
                     }    
       tags:
         - Orders
-  /orders/{orderId}:
-    delete:
-      summary: Delete an order (ADMIN)
-      description: Delete one order from the database, specified by its order ID
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of order to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Successfully deleted order
-          content:
-            application/json:
-              examples:
-                200 OK:
-                  value: |-
-                    {
-                        "message": "Successfully deleted order",
-                        "deletedOrder": {
-                            "userId": 12,
-                            "orderId": 3,
-                            "date": "2023-02-21T21:43:30.479Z",
-                            "totalPrice": "85.00"
-                        }
-                    }
-        '401':
-          description: Authorisation error
-          content:
-            application/json:
-              examples:
-                401 Unauthorised - Not Admin:
-                  value: |-
-                    {
-                        "message": "You are not authorised to view or edit this content!"
-                    }
-                401 Unauthorised - Not Logged In:
-                  value: |-
-                    {
-                        "message": "You are not logged in. Please log in or register to continue."
-                    }
-        '404':
-          description: Order not found
-          content:
-            application/json:
-              examples:
-                404 Not Found:
-                  value: |-
-                    {
-                        "message": "No order found with id: 5"
-                    }
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              examples:
-                500 Internal Server Error:
-                  value: |-
-                    {
-                        "message": "connect ECONNREFUSED 127.0.0.1:5432"
-                    }             
-      tags:
-        - Orders
+
   /orders/myOrders:
     get:
       summary: Get user orders

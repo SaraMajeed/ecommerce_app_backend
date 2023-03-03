@@ -55,19 +55,6 @@ const getOrderItemsById = async (orderId, userId) => {
   return null;
 };
 
-const deleteOrder = async (orderId, userId) => {
-  const orderExists = await getOrderById(orderId, userId);
-
-  if (orderExists) {
-    const query = "DELETE FROM orders WHERE id = $1 RETURNING *";
-    const deletedOrder = await pool.query(query, [orderId]);
-
-    return deletedOrder.rows[0];
-  }
-
-  return null;
-};
-
 
 const createOrder = async (total, userId) => {
   try {
@@ -106,7 +93,6 @@ module.exports = {
   getUserOrders,
   getOrderById,
   getOrderItemsById,
-  deleteOrder,
   createOrder,
   createOrderItems,
 };

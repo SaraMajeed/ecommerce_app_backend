@@ -11,12 +11,6 @@ module.exports = (app) => {
 
   ordersRouter.get("/myOrders", isLoggedIn, ordersController.getUserOrders);
 
-  ordersRouter.delete(
-    "/:orderId",
-    isLoggedIn,
-    isAdmin,
-    ordersController.deleteOrder
-  );
 
   ordersRouter.get(
     "/myOrders/:orderId",

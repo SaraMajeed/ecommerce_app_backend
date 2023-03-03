@@ -1,5 +1,4 @@
 const pool = require("../db/db");
-const { encryptPassword } = require("./auth");
 
 const getAllUsers = async () => {
   const users = await pool.query(
@@ -67,10 +66,20 @@ const deleteUserById = async (userId) => {
   return null;
 };
 
+const encryptPassword = async (password) => {
+  //generate salt
+  const salt = await bcrypt.genSalt(10);
+  //hash password
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  return hashedPassword;
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUserById,
   getUserByEmail,
   deleteUserById,
+  encryptPassword
 };

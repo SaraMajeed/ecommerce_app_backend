@@ -138,5 +138,4 @@ module.exports = {
   deleteProductInCart,
   emptyCart,
   checkoutCart,
-  totalPrice,
 };

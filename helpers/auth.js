@@ -2,16 +2,7 @@ const pool = require("../db/db");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
 const { createCart } = require("../helpers/carts");
-const { getUserByEmail } = require("./users");
-
-const encryptPassword = async (password) => {
-  //generate salt
-  const salt = await bcrypt.genSalt(10);
-  //hash password
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  return hashedPassword;
-};
+const { getUserByEmail, encryptPassword } = require("./users");
 
 
 const createUser = async (data) => {
