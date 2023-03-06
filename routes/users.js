@@ -6,14 +6,13 @@ const { isLoggedIn, isAdmin } = require("../middleware/authMiddleware");
 const userRouter = Router();
 
 module.exports = (app) => {
-  app.use("/users", userRouter);
+  app.use("/users", isLoggedIn, userRouter);
 
-  userRouter.get("/", isLoggedIn, isAdmin, usersController.getAllUsers);
+  userRouter.get("/", isAdmin, usersController.getAllUsers);
 
-  userRouter.get("/myAccount", isLoggedIn, usersController.getUserById);
+  userRouter.get("/myAccount", usersController.getUserById);
 
-  userRouter.put("/myAccount", isLoggedIn, usersController.updateUserById);
+  userRouter.put("/myAccount", usersController.updateUserById);
 
-  userRouter.delete("/myAccount", isLoggedIn, usersController.deleteUserById);
-
+  userRouter.delete("/myAccount", usersController.deleteUserById);
 };

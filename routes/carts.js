@@ -3,41 +3,19 @@ const cartsController = require("../controllers/carts");
 const { isLoggedIn, isAdmin } = require("../middleware/authMiddleware");
 
 module.exports = (app) => {
-  app.use("/carts", cartsRouter);
+  app.use("/carts", isLoggedIn, cartsRouter);
 
-  cartsRouter.get("/", isLoggedIn, isAdmin, cartsController.getCarts);
+  cartsRouter.get("/", isAdmin, cartsController.getCarts);
 
-   cartsRouter.get(
-     "/myCart",
-     isLoggedIn,
-     cartsController.getProductsInCart
-   );
+  cartsRouter.get("/myCart", cartsController.getProductsInCart);
 
-  // cartsRouter.get("/myCart", isLoggedIn, cartsController.getCartByUserId);
+  cartsRouter.post("/myCart", cartsController.addProductToCart);
 
-  cartsRouter.post(
-    "/myCart",
-    isLoggedIn,
-    cartsController.addProductToCart
-  );
+  cartsRouter.delete("/myCart", cartsController.emptyCart);
 
-  cartsRouter.delete("/myCart", isLoggedIn, cartsController.emptyCart);
+  cartsRouter.put("/myCart/:productId", cartsController.updateProductInCart);
 
-  cartsRouter.put(
-    "/myCart/:productId",
-    isLoggedIn,
-    cartsController.updateProductInCart
-  );
+  cartsRouter.delete("/myCart/:productId", cartsController.deleteProductInCart);
 
-  cartsRouter.delete(
-    "/myCart/:productId",
-    isLoggedIn,
-    cartsController.deleteProductInCart
-  );
-
-  cartsRouter.post(
-    "/myCart/checkout",
-    isLoggedIn,
-    cartsController.checkoutCart
-  );
+  cartsRouter.post("/myCart/checkout", cartsController.checkoutCart);
 };
