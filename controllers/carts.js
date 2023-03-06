@@ -31,6 +31,8 @@ const addProductToCart = async (req, res, next) => {
     });
 
     res.status(201).json({
+      // @SaraMajeed
+      // Since you're only using productId and quantity, lets change what the database returns in the helper function.
       message: "Successfully added product to cart",
       newCartItem: {
         productId: newProductInCart.product_id,

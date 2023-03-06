@@ -37,7 +37,7 @@ const getOrderById = async (orderId, userId) => {
     return order.rows;
   }
 
-  throw createError(404, `No order found with id: ${orderId}` );
+  throw createError(404, `No order found with id: ${orderId}`);
 };
 
 const getOrderItemsById = async (orderId, userId) => {
@@ -55,7 +55,6 @@ const getOrderItemsById = async (orderId, userId) => {
   return null;
 };
 
-
 const createOrder = async (total, userId) => {
   try {
     const insertQuery = {
@@ -65,7 +64,7 @@ const createOrder = async (total, userId) => {
     };
     const newOrder = await pool.query(insertQuery.query, insertQuery.values);
 
-    return newOrder.rows;
+    return newOrder.rows[0];
   } catch (err) {
     throw err;
   }
