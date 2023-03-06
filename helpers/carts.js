@@ -44,10 +44,31 @@ const getCartByUserId = async (userId) => {
 };
 
 const getProductsInCart = async (userId) => {
-  const query =
-    "SELECT products.id AS product_id, products.name, products.description, products.category, cartitems.quantity, products.price AS price_per_unit FROM carts JOIN cartitems ON cartitems.cart_id = carts.id JOIN products ON products.id = cartitems.product_id WHERE user_id = $1 GROUP BY products.id, cartitems.quantity";
+  // const query = `SELECT products.id AS product_id, products.name, products.description, products.category,
+  //                 cartitems.quantity, products.price AS price_per_unit
+  //                FROM carts
+  //                 JOIN cartitems ON cartitems.cart_id = carts.id
+  //                 JOIN products ON products.id = cartitems.product_id
+  //                WHERE user_id = $1 GROUP BY products.id, cartitems.quantity`;
 
-  const productsInCart = await pool.query(query, [userId]);
+  // @SaraMajeed
+  // Sum up the totals of each product in the database, then you can
+  // do some simple math in the front-end when you display the products in the cart
+  const query = {
+    text: `SELECT sum(products.price * cartitems.quantity) AS total,
+            products.id AS product_id, products.name,
+            products.description, products.category,
+            cartitems.quantity, products.price AS price_per_unit
+           FROM carts
+           JOIN cartitems ON cartitems.cart_id = carts.id
+           JOIN products ON products.id = cartitems.product_id
+           WHERE user_id = $1
+           GROUP BY products.id, cartitems.quantity;
+    `,
+    values: [userId],
+  };
+
+  const productsInCart = await pool.query(query);
 
   if (productsInCart.rows?.length) {
     return productsInCart.rows;
@@ -59,14 +80,25 @@ const getProductsInCart = async (userId) => {
 const addProductToCart = async (data) => {
   const { cartId, productId, quantity } = data;
 
-  const insert = {
-    query:
-      "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
+  // const insert = {
+  //   query:
+  //     "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
+  //   values: [cartId, productId, quantity],
+  // };
+  // const insertProduct = await pool.query(insert.query, insert.values);
+
+  // @SaraMajeed
+  // This way is a little cleaner in my opinion
+  // Use a query config object
+  // https://node-postgres.com/features/queries#query-config-object
+  const query = {
+    // @SaraMajeed
+    // only return what you need (won't matter for a small project like this, but it's a good habit to get into)
+    text: "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING product_id, quantity",
     values: [cartId, productId, quantity],
   };
 
-  const insertProduct = await pool.query(insert.query, insert.values);
-
+  const insertProduct = await pool.query(query);
   return insertProduct.rows[0];
 };
 
@@ -74,13 +106,12 @@ const updateProductsInCart = async (data) => {
   const { cartId, productId, quantity } = data;
 
   const updateQuery = {
-    query:
-      "UPDATE cartitems SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING *",
+    // @SaraMajeed
+    // only return what you need (won't matter for a small project like this, but it's a good habit to get into)
+    text: "UPDATE cartitems SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING quantity, product_id",
     values: [quantity, cartId, productId],
   };
-
-  const updatedCart = await pool.query(updateQuery.query, updateQuery.values);
-
+  const updatedCart = await pool.query(updateQuery);
   return updatedCart.rows[0];
 };
 
@@ -89,7 +120,7 @@ const deleteProductInCart = async (data) => {
 
   const deleteQuery = {
     query:
-      "DELETE FROM cartitems WHERE cart_id = $1 AND product_id = $2 RETURNING *",
+      "DELETE FROM cartitems WHERE cart_id = $1 AND product_id = $2 RETURNING product_id, quantity",
     values: [cartId, productId],
   };
 
@@ -123,7 +154,7 @@ const checkoutCart = async (cartId, userId) => {
     await createOrderItems(cartItems, newOrder[0].id);
     await emptyCart(cartId);
 
-    return newOrder[0];
+    return newOrder;
   }
   throw createError(404, "Cart is empty");
 };
