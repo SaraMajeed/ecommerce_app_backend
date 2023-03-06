@@ -17,6 +17,7 @@ const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // @SaraMajeed this helper function doesn't exist
     const response = await authHelpers.loginUser({ email, password });
 
     res.status(200).json({ message: `Logged in as ${response.username}` });
