@@ -13,10 +13,11 @@ const getAllUsers = async () => {
 };
 
 const getUserById = async (userId) => {
-  const user = await pool.query(
-    "SELECT id, username, email, admin FROM users WHERE id = $1",
-    [userId]
-  );
+  const query = {
+    text: "SELECT id, username, email, admin FROM users WHERE id = $1",
+    values: [userId]
+  };
+  const user = await pool.query(query);
 
   if (user.rows?.length) {
     return user.rows[0];
@@ -30,22 +31,24 @@ const updateUserById = async (data) => {
 
   const hashedPassword = await encryptPassword(password);
 
-  const updateQuery = {
-    query:
+  const query = {
+    text:
       "UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4 RETURNING username, email",
     values: [username, hashedPassword, email, userId],
   };
 
-  const updatedUser = await pool.query(updateQuery.query, updateQuery.values);
+  const updatedUser = await pool.query(query);
 
   return updatedUser.rows;
 };
 
 const getUserByEmail = async (email) => {
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const query = {
+      text: "SELECT * FROM users WHERE email = $1",
+      values: [email]
+    }
+    const user = await pool.query(query);
     if (user.rows?.length) {
       return user.rows[0];
     }
@@ -59,7 +62,11 @@ const deleteUserById = async (userId) => {
   const user = await getUserById(userId);
 
   if (user) {
-    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    const query = {
+      text: "DELETE FROM users WHERE id = $1",
+      values: [user.id]
+    };
+    await pool.query(query);
 
     return user;
   }

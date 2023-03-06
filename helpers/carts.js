@@ -13,8 +13,11 @@ const getCarts = async () => {
 
 const createCart = async (userId) => {
   try {
-    const query = "INSERT INTO carts (user_id) VALUES ($1) RETURNING *";
-    const newCart = await pool.query(query, [userId]);
+    const query = {
+      text: "INSERT INTO carts (user_id) VALUES ($1) RETURNING *",
+      values: [userId]
+    }
+    const newCart = await pool.query(query);
 
     return newCart.rows;
   } catch (err) {
@@ -31,12 +34,12 @@ const emptyCart = async (cartId) => {
 };
 
 const getCartByUserId = async (userId) => {
-  const selectQuery = {
-    query: "SELECT id as cart_id, user_id FROM carts WHERE user_id = $1",
+  const query = {
+    text: "SELECT id as cart_id, user_id FROM carts WHERE user_id = $1",
     values: [userId],
   };
 
-  const userCart = await pool.query(selectQuery.query, selectQuery.values);
+  const userCart = await pool.query(query);
 
   if (userCart.rows?.length) {
     return userCart.rows;
@@ -93,13 +96,13 @@ const addProductToCart = async (data) => {
 const updateProductsInCart = async (data) => {
   const { cart_id, product_id, quantity } = data;
 
-  const updateQuery = {
+  const query = {
     // @SaraMajeed
     // only return what you need (won't matter for a small project like this, but it's a good habit to get into)
     text: "UPDATE cartitems SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING quantity, product_id",
     values: [quantity, cart_id, product_id],
   };
-  const updatedCart = await pool.query(updateQuery);
+  const updatedCart = await pool.query(query);
   return updatedCart.rows[0];
 };
 

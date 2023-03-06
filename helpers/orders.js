@@ -3,8 +3,11 @@ const createError = require("http-errors");
 
 // gets all orders
 const getAllOrders = async () => {
-  const query =
-    "SELECT orders.id, orders.user_id, users.email, orders.total_price FROM orders JOIN users ON users.id = orders.user_id";
+  const query = `SELECT orders.id, orders.user_id, users.email, orders.total_price 
+                 FROM orders 
+                 JOIN users 
+                 ON users.id = orders.user_id`;
+
   const orders = await pool.query(query);
 
   if (orders.rows?.length) {
@@ -16,10 +19,17 @@ const getAllOrders = async () => {
 
 // gets all orders for a specific user
 const getUserOrders = async (userId) => {
-  const query =
-    "SELECT orders.id AS order_id, orders.user_id, users.email, orders.total_price FROM orders JOIN users ON users.id = orders.user_id AND orders.user_id = $1";
+  const query = {
+    text: `SELECT orders.id AS order_id, orders.user_id, users.email, orders.total_price 
+           FROM orders 
+           JOIN users 
+           ON users.id = orders.user_id 
+           AND orders.user_id = $1
+    `,
+    values: [userId]
+  }
 
-  const orders = await pool.query(query, [userId]);
+  const orders = await pool.query(query);
 
   if (orders.rows?.length) {
     return orders.rows;
@@ -29,9 +39,12 @@ const getUserOrders = async (userId) => {
 };
 
 const getOrderById = async (orderId, userId) => {
-  const query = "SELECT * FROM orders WHERE id = $1 AND user_id = $2";
+  const query = {
+    text: "SELECT * FROM orders WHERE id = $1 AND user_id = $2",
+    values: [orderId, userId]
+  }
 
-  const order = await pool.query(query, [orderId, userId]);
+  const order = await pool.query(query);
 
   if (order.rows?.length) {
     return order.rows;
@@ -41,13 +54,23 @@ const getOrderById = async (orderId, userId) => {
 };
 
 const getOrderItemsById = async (orderId, userId) => {
-  const query =
-    "SELECT products.id AS product_id, products.name, products.description, products.category, orderitems.quantity, products.price AS price_per_unit FROM products JOIN orderitems ON orderitems.product_id = products.id WHERE order_id = $1 ORDER BY products.id";
-
+  const query = {
+    text: `SELECT products.id AS product_id, 
+            products.name, products.description, 
+            products.category, orderitems.quantity,
+            products.price AS price_per_unit 
+          FROM products 
+          JOIN orderitems 
+          ON orderitems.product_id = products.id 
+          WHERE order_id = $1 
+          ORDER BY products.id
+    `,
+    values: [orderId]
+  }
   // check if order exists before getting order details
   const orderExists = await getOrderById(orderId, userId);
   if (orderExists) {
-    const orderDetails = await pool.query(query, [orderId]);
+    const orderDetails = await pool.query(query);
 
     return orderDetails.rows;
   }

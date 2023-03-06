@@ -12,9 +12,12 @@ const getProducts = async () => {
 };
 
 const getProductsByCategory = async (category) => {
-  const query = "SELECT * FROM products WHERE category = $1";
+  const query = {
+    text: "SELECT * FROM products WHERE category = $1",
+    values: [category.toLowerCase()]
+  }
 
-  const products = await pool.query(query, [category.toLowerCase()]);
+  const products = await pool.query(query);
 
   if (products.rows?.length) {
     return products.rows;
@@ -24,10 +27,12 @@ const getProductsByCategory = async (category) => {
 };
 
 const getProductByName = async (name) => {
-  const query =
-    "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC";
+  const query = {
+    text: "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC",
+    values: [name.toLowerCase()]
+  };
 
-  const products = await pool.query(query, [name.toLowerCase()]);
+  const products = await pool.query(query);
 
   if (products.rows?.length) {
     return products.rows;
@@ -37,9 +42,12 @@ const getProductByName = async (name) => {
 };
 
 const getProductById = async (productId) => {
-  const query = "SELECT * FROM products WHERE id = $1";
+  const query = {
+    text: "SELECT * FROM products WHERE id = $1",
+    values: [productId]
+  }
 
-  const product = await pool.query(query, [productId]);
+  const product = await pool.query(query);
 
   if (product.rows?.length) {
     return product.rows[0];
@@ -58,13 +66,13 @@ const createNewProduct = async (data) => {
     );
   }
 
-  const insertQuery = {
-    query:
+  const query = {
+    text:
       "INSERT INTO products (name, description, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
     values: [name, description, price, category],
   };
 
-  const newProduct = await pool.query(insertQuery.query, insertQuery.values);
+  const newProduct = await pool.query(query);
 
   // @SaraMajeed
   // we should only get one row back as we're only inserting one thing,
@@ -82,8 +90,8 @@ const updateProductById = async (data) => {
     );
   }
 
-  const updateQuery = {
-    query:
+  const query = {
+    text:
       "UPDATE products SET name = $1, description = $2, price = $3, category = $4 WHERE id = $5 RETURNING *",
     values: [name, description, price, category, productId],
   };
@@ -92,10 +100,7 @@ const updateProductById = async (data) => {
   const productExists = await getProductById(productId);
 
   if (productExists) {
-    const updatedProduct = await pool.query(
-      updateQuery.query,
-      updateQuery.values
-    );
+    const updatedProduct = await pool.query(query);
     return updatedProduct.rows[0];
   }
 };
@@ -104,9 +109,11 @@ const deleteProductById = async (productId) => {
   const productExists = await getProductById(productId);
 
   if (productExists) {
-    const query = "DELETE FROM products WHERE id = $1 RETURNING *";
-
-    const deletedProduct = await pool.query(query, [productId]);
+    const query = {
+      text: "DELETE FROM products WHERE id = $1 RETURNING *",
+      values: [productId]
+    }
+    const deletedProduct = await pool.query(query);
 
     return deletedProduct.rows[0];
   }

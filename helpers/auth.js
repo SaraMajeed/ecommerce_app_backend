@@ -11,14 +11,14 @@ const createUser = async (data) => {
 
     const hashedPassword = await encryptPassword(password);
 
-    const insert = {
-      query:
+    const query = {
+      text:
         "INSERT INTO users (username, password, email, admin) VALUES ($1, $2, $3, COALESCE($4, false)) RETURNING *",
       values: [username, hashedPassword, email, admin],
     };
 
     // Insert user data into users table
-    const newUser = await pool.query(insert.query, insert.values);
+    const newUser = await pool.query(query);
 
     // Create a cart for the new user
     await createCart(newUser.rows[0].id);

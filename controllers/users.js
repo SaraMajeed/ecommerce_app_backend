@@ -20,12 +20,10 @@ const getUserById = async (req, res, next) => {
 
 const updateUserById = async (req, res, next) => {
   try {
-    const { username, password, email } = req.body;
+    const data = req.body;
 
     await userHelpers.updateUserById({
-      username,
-      password,
-      email,
+      ...data,
       userId: req.user.id,
     });
 
