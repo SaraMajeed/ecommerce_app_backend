@@ -23,7 +23,7 @@ module.exports = (app) => {
     try {
       const user = await getUserById(id);
       const userCart = await getCartByUserId(id);
-      user.cart_id = userCart[0].id;
+      user.cart_id = userCart[0].cart_id;
       done(null, user);
 
     } catch (err) {
