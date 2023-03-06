@@ -1,10 +1,9 @@
-const authHelpers = require("../helpers/users");
+const authHelpers = require("../helpers/auth");
 
 const registerUser = async (req, res, next) => {
   try {
     const { username, email, password, admin } = req.body;
 
-    // @SaraMajeed this helper function doesn't exist
     await authHelpers.registerUser({ username, email, password, admin });
 
     res.status(201).json({ message: "User created successfully" });
@@ -17,7 +16,6 @@ const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // @SaraMajeed this helper function doesn't exist
     const response = await authHelpers.loginUser({ email, password });
 
     res.status(200).json({ message: `Logged in as ${response.username}` });
