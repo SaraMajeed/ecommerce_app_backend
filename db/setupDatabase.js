@@ -57,8 +57,11 @@ const { Client } = require("pg");
             FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
         );
     `;
-
-  try {
+  // doesn't need to be in try/catch block because if this fails
+  // the try/catch block will call an undefined function
+  // and will be caught there.
+  // Putting db outside of the try/catch block allows us to
+  // use a finally statement and end the db connection.
     const db = new Client({
       user: process.env.PGUSER,
       host: process.env.PGHOST,
@@ -67,6 +70,7 @@ const { Client } = require("pg");
       port: process.env.PGPORT,
     });
 
+  try {
     await db.connect();
 
     // Creates table in database
@@ -76,9 +80,14 @@ const { Client } = require("pg");
     await db.query(ordersTable);
     await db.query(orderItemsTable);
     await db.query(cartItemsTable);
-
-    await db.end();
   } catch (err) {
     console.log("ERROR CREATING DATABASE: ", err);
+  } finally {
+    // This will run no matter what happened in the try block,
+    // whereas before it was possible that this line of code
+    // could never be reached (due to an error)
+    // The cool thing about finally statements is they will
+    // ALWAYS run (provided your program wasn't killed abruptly)
+    db.end();
   }
 })();
