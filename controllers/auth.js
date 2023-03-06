@@ -4,6 +4,7 @@ const registerUser = async (req, res, next) => {
   try {
     const { username, email, password, admin } = req.body;
 
+    // @SaraMajeed this helper function doesn't exist
     await authHelpers.registerUser({ username, email, password, admin });
 
     res.status(201).json({ message: "User created successfully" });
