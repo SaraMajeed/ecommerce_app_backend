@@ -32,16 +32,6 @@ const getProductById = async (req, res, next) => {
 
 const createNewProduct = async (req, res, next) => {
   try {
-    // you might as well not destructure the object if you're going
-    // to make another object
-    // const { name, description, price, category } = req.body;
-
-    // const newProduct = await productHelpers.createNewProduct({
-    //   name,
-    //   description,
-    //   price,
-    //   category,
-    // });
     const data = req.body;
     const newProduct = await productHelpers.createNewProduct(data);
 
@@ -50,13 +40,9 @@ const createNewProduct = async (req, res, next) => {
       // @SaraMajeed
       // Save yourself some typing and use the spread operator
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
-      ...newProduct,
-      // product: {
-      //   name: newProduct[0].name,
-      //   description: newProduct[0].description,
-      //   price: newProduct[0].price,
-      //   category: newProduct[0].category,
-      // },
+      product: {
+        ...newProduct,
+      },
     });
   } catch (err) {
     next(err);
@@ -66,22 +52,16 @@ const createNewProduct = async (req, res, next) => {
 const updateProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const { name, description, price, category } = req.body;
+    const  data = req.body;
     const response = await productHelpers.updateProductById({
-      name,
-      description,
-      price,
-      category,
+      ...data,
       productId,
     });
 
     res.status(200).json({
       message: "Successfully updated product",
       updatedProduct: {
-        name: response.name,
-        description: response.description,
-        price: response.price,
-        category: response.category,
+        ...response
       },
     });
   } catch (err) {
@@ -96,13 +76,9 @@ const deleteProductById = async (req, res, next) => {
 
     res.status(200).json({
       message: "Successfully deleted product",
-      ...response,
-      // deletedProduct: {
-      //   name: response.name,
-      //   description: response.description,
-      //   price: response.price,
-      //   category: response.category,
-      // },
+      deletedProduct: {
+        ...response,
+      },
     });
   } catch (err) {
     next(err);

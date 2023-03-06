@@ -23,9 +23,11 @@ const createCart = async (userId) => {
 };
 
 const emptyCart = async (cartId) => {
-  const deleteQuery = "DELETE FROM cartitems WHERE cart_id = $1 RETURNING *";
-  const deletedProduct = await pool.query(deleteQuery, [cartId]);
-  return deletedProduct.rows;
+  const query = {
+    text: "DELETE FROM cartitems WHERE cart_id = $1",
+    values: [cartId]
+  }
+  await pool.query(query);
 };
 
 const getCartByUserId = async (userId) => {
@@ -44,13 +46,6 @@ const getCartByUserId = async (userId) => {
 };
 
 const getProductsInCart = async (userId) => {
-  // const query = `SELECT products.id AS product_id, products.name, products.description, products.category,
-  //                 cartitems.quantity, products.price AS price_per_unit
-  //                FROM carts
-  //                 JOIN cartitems ON cartitems.cart_id = carts.id
-  //                 JOIN products ON products.id = cartitems.product_id
-  //                WHERE user_id = $1 GROUP BY products.id, cartitems.quantity`;
-
   // @SaraMajeed
   // Sum up the totals of each product in the database, then you can
   // do some simple math in the front-end when you display the products in the cart
@@ -58,7 +53,7 @@ const getProductsInCart = async (userId) => {
     text: `SELECT sum(products.price * cartitems.quantity) AS total,
             products.id AS product_id, products.name,
             products.description, products.category,
-            cartitems.quantity, products.price AS price_per_unit
+            sum(cartitems.quantity) as quantity, products.price AS price_per_unit
            FROM carts
            JOIN cartitems ON cartitems.cart_id = carts.id
            JOIN products ON products.id = cartitems.product_id
@@ -78,14 +73,7 @@ const getProductsInCart = async (userId) => {
 };
 
 const addProductToCart = async (data) => {
-  const { cartId, productId, quantity } = data;
-
-  // const insert = {
-  //   query:
-  //     "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
-  //   values: [cartId, productId, quantity],
-  // };
-  // const insertProduct = await pool.query(insert.query, insert.values);
+  const { cart_id, product_id, quantity } = data;
 
   // @SaraMajeed
   // This way is a little cleaner in my opinion
@@ -95,7 +83,7 @@ const addProductToCart = async (data) => {
     // @SaraMajeed
     // only return what you need (won't matter for a small project like this, but it's a good habit to get into)
     text: "INSERT INTO cartitems (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING product_id, quantity",
-    values: [cartId, productId, quantity],
+    values: [cart_id, product_id, quantity],
   };
 
   const insertProduct = await pool.query(query);
@@ -103,31 +91,27 @@ const addProductToCart = async (data) => {
 };
 
 const updateProductsInCart = async (data) => {
-  const { cartId, productId, quantity } = data;
+  const { cart_id, product_id, quantity } = data;
 
   const updateQuery = {
     // @SaraMajeed
     // only return what you need (won't matter for a small project like this, but it's a good habit to get into)
     text: "UPDATE cartitems SET quantity = $1 WHERE cart_id = $2 AND product_id = $3 RETURNING quantity, product_id",
-    values: [quantity, cartId, productId],
+    values: [quantity, cart_id, product_id],
   };
   const updatedCart = await pool.query(updateQuery);
   return updatedCart.rows[0];
 };
 
 const deleteProductInCart = async (data) => {
-  const { cartId, productId } = data;
+  const { cart_id, product_id } = data;
 
-  const deleteQuery = {
-    query:
-      "DELETE FROM cartitems WHERE cart_id = $1 AND product_id = $2 RETURNING product_id, quantity",
-    values: [cartId, productId],
+  const query = {
+    text: "DELETE FROM cartitems WHERE cart_id = $1 AND product_id = $2 RETURNING product_id, quantity",
+    values: [cart_id, product_id],
   };
 
-  const deletedProduct = await pool.query(
-    deleteQuery.query,
-    deleteQuery.values
-  );
+  const deletedProduct = await pool.query(query);
 
   return deletedProduct.rows[0];
 };
@@ -136,9 +120,8 @@ const totalPrice = (cartItems) => {
   const total = Number(
     cartItems
       .reduce((total, item, index) => {
-        return total + item.price_per_unit * item.quantity;
+        return total + (item.total * 1);
       }, 0)
-      .toFixed(2)
   );
 
   return total;
@@ -151,7 +134,7 @@ const checkoutCart = async (cartId, userId) => {
   if (cartItems) {
     const total = totalPrice(cartItems);
     const newOrder = await createOrder(total, userId);
-    await createOrderItems(cartItems, newOrder[0].id);
+    await createOrderItems(cartItems, newOrder.id);
     await emptyCart(cartId);
 
     return newOrder;

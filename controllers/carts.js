@@ -22,11 +22,11 @@ const getProductsInCart = async (req, res, next) => {
 const addProductToCart = async (req, res, next) => {
   try {
     const { cart_id } = req.user;
-    const { productId, quantity } = req.body;
+    const { product_id, quantity } = req.body;
 
     const newProductInCart = await cartHelpers.addProductToCart({
       cart_id,
-      productId,
+      product_id,
       quantity,
     });
 
@@ -67,8 +67,8 @@ const updateProductInCart = async (req, res, next) => {
 const deleteProductInCart = async (req, res, next) => {
   try {
     const deletedProductInCart = await cartHelpers.deleteProductInCart({
-      cartId: req.user.cart_id,
-      productId: req.params.productId,
+      cart_id: req.user.cart_id,
+      product_id: req.params.productId,
     });
     res.status(200).json({
       message: "Successfully deleted product from cart",
@@ -102,9 +102,7 @@ const checkoutCart = async (req, res, next) => {
     res.status(201).json({
       message: "Successfully submitted order",
       orderDetails: {
-        orderID: checkoutCart.id,
-        date: checkoutCart.date,
-        total_price: "£" + checkoutCart.total_price,
+        ...checkoutCart
       },
     });
   } catch (err) {
