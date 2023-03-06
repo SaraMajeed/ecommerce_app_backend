@@ -1,5 +1,6 @@
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const dotenv = require("dotenv").config();
 
 module.exports = (app) => {
   app.use(bodyParser.json());

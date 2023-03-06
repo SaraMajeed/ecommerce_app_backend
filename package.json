@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_OPTIONS='--trace-warnings' nodemon -r dotenv/config server.js ",
-    "test": "cross-env NODE_ENV=test jest --setupFiles dotenv/config --forceExit",
-    "create-db": "node -r dotenv/config db/setupDatabase"
+    "start": "nodemon server.js ",
+    "test": "jest --forceExit",
+    "create-db": "node db/setupDatabase"
   },
   "author": "",
   "license": "ISC",
