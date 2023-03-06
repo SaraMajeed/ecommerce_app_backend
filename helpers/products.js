@@ -66,7 +66,10 @@ const createNewProduct = async (data) => {
 
   const newProduct = await pool.query(insertQuery.query, insertQuery.values);
 
-  return newProduct.rows;
+  // @SaraMajeed
+  // we should only get one row back as we're only inserting one thing,
+  // so return row 1.
+  return newProduct.rows[0];
 };
 
 const updateProductById = async (data) => {
